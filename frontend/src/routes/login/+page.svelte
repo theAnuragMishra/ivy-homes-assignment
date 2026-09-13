@@ -37,41 +37,25 @@
 	/>
 </svelte:head>
 
-<main class="auth-shell">
-	<section class="auth-card">
-		<p class="eyebrow">IVY HOMES</p>
-		<h1>Find a place that fits.</h1>
-		<p class="muted">Sign in with one of the demo accounts provided for your assignment.</p>
+<main class="grid min-h-screen place-items-center p-8">
+	<section class="w-full max-w-md rounded-[1.25rem] border border-[#e5e0d7] bg-white p-10 shadow-[0_1rem_3rem_#25352a12]">
+		<p class="mb-5 text-xs font-extrabold tracking-[.16em] text-[#557762]">IVY HOMES</p>
+		<h1 class="m-0 text-[clamp(2rem,6vw,3.25rem)] leading-[.98] tracking-[-.06em]">Find a place that fits.</h1>
+		<p class="leading-relaxed text-[#68746d]">Sign in with one of the demo accounts provided for your assignment.</p>
 
-		<form onsubmit={(event) => { event.preventDefault(); login(); }}>
-			<label>
+		<form class="mt-8 grid gap-4" onsubmit={(event) => { event.preventDefault(); login(); }}>
+			<label class="grid gap-1.5 text-sm font-bold text-[#526058]">
 				Email
-				<input bind:value={email} type="email" autocomplete="email" required />
+				<input class="box-border w-full rounded-[.65rem] border border-[#d8d5cc] p-3.5 font-inherit focus:outline-2 focus:outline-[#8bb699] focus:outline-offset-2" bind:value={email} type="email" autocomplete="email" required />
 			</label>
-			<label>
+			<label class="grid gap-1.5 text-sm font-bold text-[#526058]">
 				Password
-				<input bind:value={password} type="password" autocomplete="current-password" required />
+				<input class="box-border w-full rounded-[.65rem] border border-[#d8d5cc] p-3.5 font-inherit focus:outline-2 focus:outline-[#8bb699] focus:outline-offset-2" bind:value={password} type="password" autocomplete="current-password" required />
 			</label>
 			{#if error}
-				<p class="error" role="alert">{error}</p>
+				<p class="m-0 text-sm text-[#a3362d]" role="alert">{error}</p>
 			{/if}
-			<button disabled={loading}>{loading ? 'Signing in…' : 'Sign in'}</button>
+			<button class="mt-2 cursor-pointer rounded-[.65rem] border-0 bg-[#1e5b3a] px-4 py-3.5 font-extrabold text-white disabled:cursor-wait disabled:opacity-65" disabled={loading}>{loading ? 'Signing in…' : 'Sign in'}</button>
 		</form>
 	</section>
 </main>
-
-<style>
-	:global(body) { margin: 0; background: #f5f3ee; color: #1e2924; font-family: Inter, system-ui, sans-serif; }
-	.auth-shell { min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
-	.auth-card { width: min(100%, 27rem); padding: 2.5rem; background: white; border: 1px solid #e5e0d7; border-radius: 1.25rem; box-shadow: 0 1rem 3rem #25352a12; }
-	.eyebrow { margin: 0 0 1.25rem; color: #557762; font-size: .75rem; font-weight: 800; letter-spacing: .16em; }
-	h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.25rem); line-height: .98; letter-spacing: -.06em; }
-	.muted { color: #68746d; line-height: 1.6; }
-	form { display: grid; gap: 1rem; margin-top: 2rem; }
-	label { display: grid; gap: .4rem; color: #526058; font-size: .85rem; font-weight: 700; }
-	input { box-sizing: border-box; width: 100%; padding: .8rem .9rem; border: 1px solid #d8d5cc; border-radius: .65rem; font: inherit; }
-	input:focus { outline: 2px solid #8bb699; outline-offset: 2px; }
-	button { margin-top: .5rem; padding: .85rem 1rem; border: 0; border-radius: .65rem; background: #1e5b3a; color: white; font: inherit; font-weight: 800; cursor: pointer; }
-	button:disabled { cursor: wait; opacity: .65; }
-	.error { margin: 0; color: #a3362d; font-size: .9rem; }
-</style>

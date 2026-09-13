@@ -127,28 +127,28 @@
 	<meta name="description" content="Browse sale listings from the Ivy Homes API." />
 </svelte:head>
 
-<main class="shell">
-	<header class="topbar">
+<main class="mx-auto w-[min(76rem,calc(100%-3rem))] py-8 pb-16 max-[900px]:w-[calc(100%-3rem)] max-[560px]:w-[calc(100%-2rem)]">
+	<header class="mb-4 flex items-end justify-between gap-8 max-[560px]:flex-col max-[560px]:items-start">
 		<div>
-			<a class="back" href={resolve('/')}>← Workspace</a>
-			<p class="eyebrow">SALE LISTINGS</p>
-			<h1>Find your next place.</h1>
+			<a class="mb-8 block text-sm font-bold text-[#1e5b3a] no-underline" href={resolve('/')}>← Workspace</a>
+			<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">SALE LISTINGS</p>
+			<h1 class="m-0 text-[clamp(2.3rem,6vw,4.5rem)] leading-[.95] tracking-[-.06em]">Find your next place.</h1>
 		</div>
-		<a class="saved-link" href={resolve('/saved')}>Saved listings</a>
+		<a class="font-bold text-[#1e5b3a] no-underline" href={resolve('/saved')}>Saved listings</a>
 	</header>
 
-	<section class="filters" aria-label="Listing filters">
-		<label>
+	<section class="filters grid grid-cols-4 items-end gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-4 max-[900px]:grid-cols-3 max-[560px]:grid-cols-1" aria-label="Listing filters">
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Locality
-			<input
+			<input class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]"
 				bind:value={locality}
 				placeholder="e.g. thoraipakkam"
 				oninput={() => void debounceFetchListings(true)}
 			/>
 		</label>
-		<label>
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Property Type
-			<select bind:value={propertyType} onchange={() => void fetchListings(true)}>
+			<select class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]" bind:value={propertyType} onchange={() => void fetchListings(true)}>
 				<option value="">Any</option>
 				<option value="apartment">Apartment</option>
 				<option value="villa">Villa</option>
@@ -157,9 +157,9 @@
 				<option value="builder floor">Builder Floor</option>
 			</select>
 		</label>
-		<label>
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Bedrooms
-			<select bind:value={bedroom} onchange={() => void fetchListings(true)}>
+			<select class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]" bind:value={bedroom} onchange={() => void fetchListings(true)}>
 				<option value="">Any</option>
 				<option value="0">Plot</option>
 				<option value="1">1 BHK</option>
@@ -169,27 +169,27 @@
 				<option value="5">5 BHK</option>
 			</select>
 		</label>
-		<label>
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Furnishing
-			<select bind:value={furnishing} onchange={() => void fetchListings(true)}>
+			<select class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]" bind:value={furnishing} onchange={() => void fetchListings(true)}>
 				<option value="">Any furnishing</option>
 				<option value="unfurnished">Unfurnished</option>
 				<option value="semi-furnished">Semi-furnished</option>
 				<option value="fully-furnished">Fully-furnished</option>
 			</select>
 		</label>
-		<label>
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Min price
-			<input bind:value={minPrice} type="number" min="0" placeholder="₹" oninput={() => void fetchListings(true)} />
+			<input class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]" bind:value={minPrice} type="number" min="0" placeholder="₹" oninput={() => void fetchListings(true)} />
 		</label>
-		<label>
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Max price
-			<input bind:value={maxPrice} type="number" min="0" placeholder="₹" oninput={() => void fetchListings(true)} />
+			<input class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]" bind:value={maxPrice} type="number" min="0" placeholder="₹" oninput={() => void fetchListings(true)} />
 		</label>
 		
-		<label>
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Sort by
-			<select bind:value={sortBy} onchange={() => void fetchListings(true)}>
+			<select class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]" bind:value={sortBy} onchange={() => void fetchListings(true)}>
 				<option value="">Default</option>
 				<option value="price">Price</option>
 				<option value="carpet_area">Carpet Area</option>
@@ -197,53 +197,53 @@
 				<option value="bedroom">Bedroom</option>
 			</select>
 		</label>
-		<label>
+		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 			Order
-			<select bind:value={order} onchange={() => void fetchListings(true)}>
+			<select class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]" bind:value={order} onchange={() => void fetchListings(true)}>
 				<option value="asc">Ascending</option>
 				<option value="desc">Descending</option>
 			</select>
 		</label>
 		
 			
-			<label class="checkbox">
+			<label class="flex items-center gap-1.5 text-xs font-bold text-[#526058]">
 			<input type="checkbox" bind:checked={liveOnly} onchange={() => void fetchListings(true)} />
 			Active only
 		</label>
-		<button class="clear" type="button" onclick={resetFilters}>Clear Filters</button>
+		<button class="clear cursor-pointer rounded-[.55rem] border-0 bg-[#e8eee9] px-4 py-3 font-inherit font-extrabold text-[#1e5b3a]" type="button" onclick={resetFilters}>Clear Filters</button>
 	</section>
 
 	{#if error}
-		<p class="message error" role="alert">{error}</p>
+		<p class="py-8 text-[#a3362d]" role="alert">{error}</p>
 	{:else if loading}
-		<p class="message">Loading listings…</p>
+		<p class="py-8 text-[#68746d]">Loading listings…</p>
 	{:else}
-		<div class="summary">
+		<div class="my-8 flex items-baseline gap-2 text-[#68746d]">
 			
 			<span>Loaded {listings.length} listings</span>
 		</div>
 		{#if listings.length === 0}
-			<p class="message">No listings match these filters.</p>
+			<p class="py-8 text-[#68746d]">No listings match these filters.</p>
 		{:else}
-			<section class="grid" aria-label="Listings">
+			<section class="grid grid-cols-3 gap-4 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1" aria-label="Listings">
 				{#each listings as listing (listing.listing_id)}
-					<div class="card">
-						<a class="card-link" href={resolve(`/listings/${listing.listing_id}`)}>
-							<div class="card-top">
-								<span class="tag">{listing.bedroom > 0 ? `${listing.bedroom} BHK` : 'Plot'}</span>
-								<span class:inactive={!listing.is_live}
+					<div class="relative rounded-2xl border border-[#e1ddd4] bg-white transition hover:-translate-y-0.5 hover:border-[#8bb699]">
+						<a class="grid gap-2.5 p-5 text-inherit no-underline" href={resolve(`/listings/${listing.listing_id}`)}>
+							<div class="flex justify-between text-xs font-extrabold text-[#557762]">
+								<span class="tag rounded-md bg-[#e8eee9] px-2 py-1">{listing.bedroom > 0 ? `${listing.bedroom} BHK` : 'Plot'}</span>
+								<span class={listing.is_live ? 'text-[#557762]' : 'text-[#a3362d]'}
 									>{listing.is_live ? 'Live' : 'Inactive'}</span
 								>
 							</div>
-							<h2>{listing.apartment_name}</h2>
-							<p class="location">{listing.locality} · {listing.property_type}</p>
-							<strong class="price">₹{listing.price.toLocaleString('en-IN')}</strong>
-							<p class="details">
+							<h2 class="m-0 mt-2 text-xl">{listing.apartment_name}</h2>
+							<p class="m-0 text-sm text-[#68746d]">{listing.locality} · {listing.property_type}</p>
+							<strong class="mt-1 text-[1.35rem]">₹{listing.price.toLocaleString('en-IN')}</strong>
+							<p class="m-0 text-sm text-[#68746d]">
 								{listing.carpet_area.toLocaleString()} sq ft carpet · {listing.furnishing}
 							</p>
 						</a>
 						<button
-							class="save-toggle"
+							class="save-toggle absolute right-3 top-3 cursor-pointer rounded-lg border border-[#d8d5cc] bg-white px-2.5 py-1.5 text-xs font-bold text-[#526058] data-[saved=true]:border-[#c99a2e]"
 							class:saved={isSaved(listing.listing_id)}
 							type="button"
 							onclick={() => void toggleSaved(listing.listing_id)}
@@ -255,7 +255,7 @@
 			</section>
 			{#if hasMore}
 				<button
-					class="load-more"
+					class="load-more mx-auto mt-8 block cursor-pointer rounded-[.55rem] border-0 bg-[#1e5b3a] px-4 py-3 font-inherit font-extrabold text-white"
 					type="button"
 					disabled={loadingMore}
 					onclick={() => void fetchListings()}
@@ -265,215 +265,4 @@
 			{/if}
 		{/if}
 	{/if}
-</main>
-
-<style>
-	:global(body) {
-		margin: 0;
-		background: #f5f3ee;
-		color: #1e2924;
-		font-family: Inter, system-ui, sans-serif;
-	}
-	.shell {
-		width: min(76rem, calc(100% - 3rem));
-		margin: 0 auto;
-		padding: 2rem 0 4rem;
-	}
-	.topbar {
-		display: flex;
-		justify-content: space-between;
-		align-items: end;
-		gap: 2rem;
-		margin-bottom: 1rem;
-	}
-	.back,
-	.saved-link {
-		color: #1e5b3a;
-		font-weight: 700;
-		text-decoration: none;
-	}
-	.back {
-		display: block;
-		margin-bottom: 2rem;
-		font-size: 0.9rem;
-	}
-	.eyebrow {
-		margin: 0 0 0.7rem;
-		color: #557762;
-		font-size: 0.75rem;
-		font-weight: 800;
-		letter-spacing: 0.16em;
-	}
-	h1 {
-		margin: 0;
-		font-size: clamp(2.3rem, 6vw, 4.5rem);
-		line-height: 0.95;
-		letter-spacing: -0.06em;
-	}
-	
-	.filters {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 0.75rem;
-		align-items: end;
-		padding: 1rem;
-		border: 1px solid #e1ddd4;
-		border-radius: 1rem;
-		background: #fff;
-	}
-	label {
-		display: grid;
-		gap: 0.35rem;
-		color: #526058;
-		font-size: 0.78rem;
-		font-weight: 700;
-	}
-	label.checkbox {
-		flex-direction: row;
-		align-items: center;
-		display: flex;
-		gap: 0.4rem;
-	}
-	input,
-	select {
-		box-sizing: border-box;
-		width: 100%;
-		padding: 0.7rem;
-		border: 1px solid #d8d5cc;
-		border-radius: 0.55rem;
-		background: #fff;
-		color: inherit;
-		font: inherit;
-	}
-	.checkbox input {
-		width: auto;
-		padding: 0;
-	}
-	.clear,
-	.load-more {
-		padding: 0.72rem 1rem;
-		border: 0;
-		border-radius: 0.55rem;
-		background: #1e5b3a;
-		color: white;
-		font: inherit;
-		font-weight: 800;
-		cursor: pointer;
-	}
-	.clear {
-		background: #e8eee9;
-		color: #1e5b3a;
-	}
-	.summary {
-		display: flex;
-		gap: 0.5rem;
-		align-items: baseline;
-		margin: 2rem 0 1rem;
-		color: #68746d;
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 1rem;
-	}
-	.card {
-		position: relative;
-		border: 1px solid #e1ddd4;
-		border-radius: 1rem;
-		background: #fff;
-		transition:
-			transform 0.2s,
-			border-color 0.2s;
-	}
-	.card:hover {
-		transform: translateY(-3px);
-		border-color: #8bb699;
-	}
-	.card-link {
-		display: grid;
-		gap: 0.65rem;
-		padding: 1.25rem;
-		color: inherit;
-		text-decoration: none;
-	}
-	.card-top {
-		display: flex;
-		justify-content: space-between;
-		color: #557762;
-		font-size: 0.78rem;
-		font-weight: 800;
-	}
-	.tag {
-		padding: 0.25rem 0.45rem;
-		border-radius: 0.35rem;
-		background: #e8eee9;
-	}
-	.inactive {
-		color: #a3362d;
-	}
-	h2 {
-		margin: 0.5rem 0 0;
-		font-size: 1.2rem;
-	}
-	.location,
-	.details {
-		margin: 0;
-		color: #68746d;
-		font-size: 0.9rem;
-	}
-	.price {
-		margin-top: 0.35rem;
-		font-size: 1.35rem;
-	}
-	.save-toggle {
-		position: absolute;
-		top: 0.85rem;
-		right: 0.85rem;
-		padding: 0.35rem 0.6rem;
-		border: 1px solid #d8d5cc;
-		border-radius: 0.5rem;
-		background: #fff;
-		font-size: 0.78rem;
-		font-weight: 700;
-		cursor: pointer;
-		color: #526058;
-	}
-	.save-toggle.saved {
-		border-color: #c99a2e;
-		color: #8a6a1a;
-		background: #fdf6e6;
-	}
-	.message {
-		padding: 2rem 0;
-		color: #68746d;
-	}
-	.error {
-		color: #a3362d;
-	}
-	.load-more {
-		display: block;
-		margin: 2rem auto 0;
-	}
-	@media (max-width: 900px) {
-		.filters {
-			grid-template-columns: repeat(3, 1fr);
-		}
-		.grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
-	@media (max-width: 560px) {
-		.shell {
-			width: min(100% - 2rem, 34rem);
-		}
-		.topbar {
-			align-items: start;
-			flex-direction: column;
-		}
-		.filters,
-		.grid {
-			grid-template-columns: 1fr;
-		}
-	}
-</style>
+ </main>
