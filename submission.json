@@ -82,63 +82,63 @@
       "endpoint": "*",
       "category": "auth",
       "documented": "The API key is supplied as the api_key query parameter, and protected requests use the documented token.",
-      "actual": "The live API requires X-API-Key and a Bearer access token. Login returns access_token and refresh_token.",
-      "how_found": "Sent the key using the documented query parameter which obviously did not work. The response indicated the correct headers.",
-      "impact": "Clients following the documented authentication flow cannot authenticate.",
+      "actual": "The live API requires the key in an X-API-Key request header. Sending it as a query parameter returns 401 with the message 'send your key in the X-API-Key request header, not as a query parameter'.",
+      "how_found": "Sent the key using the documented query parameter, got a 401 whose detail message named the correct header, then confirmed X-API-Key works.",
+      "impact": "Clients following the documented authentication flow cannot authenticate at all.",
       "evidence": []
     },
     {
       "endpoint": "/auth/login",
       "category": "auth",
       "documented": "Login returns token and expires_in: 86400, with a full demo-user object.",
-      "actual": "Login returns access_token, refresh_token, refresh_url, token_type Bearer, expires_in 900, and a user object containing the email.",
-      "how_found": "Called the login endpoint and recorded the response.",
-      "impact": "A frontend relying on documented behavior will not be able to authenticate or maintain a session.",
+      "actual": "Login returns access_token, refresh_token, refresh_url, token_type Bearer, expires_in 900 (15 minutes), and a user object containing only the email.",
+      "how_found": "Called the login endpoint and inspected the response body and its keys directly.",
+      "impact": "A frontend relying on the documented field names or a 24-hour token lifetime will fail to authenticate or will silently drop the session after 15 minutes.",
       "evidence": []
     },
     {
       "endpoint": "/auth/refresh",
       "category": "undocumented_endpoint",
-      "documented": "There is no refresh flow.",
-      "actual": "POST /auth/refresh accepts refresh_token and returns a refreshed access-token response.",
-      "how_found": "Called the refresh_url returned by login with the refresh token.",
-      "impact": "Clients have no idea of how to refresh their access tokens and will be forced to re-login every 15 minutes.",
+      "documented": "There is no refresh flow; a single login is enough for one working session.",
+      "actual": "POST /auth/refresh accepts {\"refresh_token\": ...} and returns a fresh access_token/refresh_token pair with the same shape as login.",
+      "how_found": "Called the refresh_url returned by login with the refresh token and confirmed a new access token was issued.",
+      "impact": "Without using this endpoint, a session would be forced to log in again every 15 minutes instead of refreshing silently.",
       "evidence": []
     },
     {
       "endpoint": "/auth/logout",
       "category": "auth",
       "documented": "Logout invalidates the current token server side.",
-      "actual": "Logout returns ok true but says tokens are stateless. The token remains usable and must be discarded client side.",
-      "how_found": "Called logout and then used the same access token for another protected request.",
-      "impact": "Logout implementations must clear local cookies or storage; the API does not revoke the token.",
+      "actual": "Logout returns {\"ok\": true, \"note\": \"tokens are stateless; discard them client side\"}. The same access token still works on a protected request made immediately after logout.",
+      "how_found": "Called logout, then reused the same access token for GET /v1/saved and got a normal 200 response instead of 401.",
+      "impact": "A frontend must discard tokens client-side on logout; the server performs no revocation, so a leaked token remains valid until it expires.",
       "evidence": []
     },
     {
       "endpoint": "*",
       "category": "pagination",
       "documented": "Collections use page and limit, with a maximum limit of 200.",
-      "actual": "Collections use offset and limit. A requested limit of 200 is capped at 50, and responses include count, total, has_more, results, limit, and offset.",
-      "how_found": "Requested multiple collection pages and compared returned pagination metadata with the requested parameters.",
-      "impact": "Clients must advance offset using the returned batch and has_more instead of requesting page numbers.",
+      "actual": "Collections use offset and limit. A requested limit of 200 (or any value above 50) is silently capped to 50, and responses include count, total, has_more, results, limit, and offset instead of page/page_size.",
+      "how_found": "Requested /v1/listings, /v1/rentals, and /v1/projects with limit values of 1, 10, 50, 100, 200, 500, and 1000 and compared the returned record counts.",
+      "impact": "Clients must page with offset += count while has_more is true; requesting page and a limit above 50 will silently under-fetch.",
       "evidence": []
     },
     {
       "endpoint": "*",
       "category": "pagination",
-      "documented": "total is exact and can be used to calculate all pages.",
-      "actual": "Complete traversal using has_more produced counts that can disagree with the reported total.",
-      "how_found": "Downloaded each collection to the end by following has_more and compared the resulting count with total.",
-      "impact": "Clients can not rely on total to calculate the number of pages, they must traverse the collection to the end.",
+      "documented": "total is the exact number of records matching your filters; divide it by limit to compute all pages.",
+      "actual": "total stays fixed at a stale value (e.g. 3841 for unfiltered /v1/listings) at every offset, while paging to has_more:false actually returns 4100 listings, 1550 rentals, and 460 projects -- 6-7% more records than total reports in every case checked, including under the locality filter (total=414, actual=442).",
+      "how_found": "Requested /v1/listings, /v1/rentals, and /v1/projects at increasing offsets up to and past the point where has_more became false, and recorded total at each offset alongside the actual record count returned.",
+      "impact": "Clients cannot compute the last page from total; they must traverse with has_more to reach the true end of a collection, or they will silently miss the last ~6-7% of records.",
       "evidence": []
     },
     {
       "endpoint": "/v1/listings",
       "category": "completeness",
-      "documented": "The endpoint returns only active listings.",
-      "actual": "The endpoint returns both live and inactive records, is_live must be checked by the client.",
-      "how_found": "Retrieved all listing records and inspected their is_live values.",
-      "impact": "The frontend must not assume every returned listing is active.",
+      "documented": "Returns active sale listings; inactive, expired and withdrawn listings are excluded server side.",
+      "actual": "The endpoint returns both is_live:true and is_live:false records (867 of the 4100 retrievable records are is_live:false); the client must filter on is_live itself.",
+      "how_found": "Downloaded every retrievable listing record and tallied the is_live field.",
+      "impact": "A frontend that shows every returned listing without checking is_live will display withdrawn/inactive properties as available.",
       "evidence": [
         "100-4000397",
         "DWE-4000236",
@@ -150,19 +150,22 @@
     {
       "endpoint": "/v1/listings",
       "category": "filters",
-      "documented": "furnishing, is_live, and project_id query parameters filter listings.",
-      "actual": "Those parameters were accepted but returned the same result totals and first records as the unfiltered request.",
-      "how_found": "Compared requests with each parameter against an otherwise identical unfiltered request.",
-      "impact": "The frontend must apply these filters locally.",
-      "evidence": []
+      "documented": "furnishing, is_live, and project_id are documented query parameters; min_price and max_price are documented as inclusive rupee filters.",
+      "actual": "All five parameters are accepted (no error) but ignored: requests with furnishing=fully-furnished, is_live=false, project_id=<id>, or min_price/max_price set all returned the exact same records, in the same order, as an unfiltered request -- including records priced outside the requested min_price/max_price range.",
+      "how_found": "Ran matched pairs of filtered vs. unfiltered requests against /v1/listings and compared both the reported total and the actual field values of every returned record.",
+      "impact": "A frontend must apply furnishing, is_live, project_id, min_price, and max_price filtering locally after fetching, not rely on the server to filter.",
+      "evidence": [
+        "MAG-4001518",
+        "DWE-4001488"
+      ]
     },
     {
       "endpoint": "/v1/listing/{id}",
       "category": "missing_endpoint",
       "documented": "A listing detail is available at the singular /v1/listing/{listing_id} path.",
-      "actual": "The singular path returns 404.",
-      "how_found": "Requested the documented route with a real listing ID.",
-      "impact": "Clients must use the plural detail route.",
+      "actual": "The singular path returns 404 (\"Not Found\") for a real listing_id.",
+      "how_found": "Requested the documented route with a real listing ID obtained from /v1/listings.",
+      "impact": "Clients must use the plural detail route instead.",
       "evidence": [
         "MAG-4001518"
       ]
@@ -171,9 +174,9 @@
       "endpoint": "/v1/listings/{id}",
       "category": "undocumented_endpoint",
       "documented": "No plural listing detail route is documented.",
-      "actual": "GET /v1/listings/{listing_id} returns the listing detail object.",
-      "how_found": "Retried the documented detail request using the plural collection path.",
-      "impact": "This is the working route for listing detail pages.",
+      "actual": "GET /v1/listings/{listing_id} returns the full listing detail object for a real listing_id.",
+      "how_found": "Retried the same listing ID against the plural collection path after the singular path 404'd.",
+      "impact": "This is the working route the frontend uses for listing detail pages.",
       "evidence": [
         "MAG-4001518"
       ]
@@ -181,10 +184,10 @@
     {
       "endpoint": "/v1/listings/{id}/similar",
       "category": "missing_endpoint",
-      "documented": "The endpoint returns up to ten similar listings.",
-      "actual": "The route returns 404.",
+      "documented": "Returns up to ten comparable listings (same locality, same bedroom count, price within 15%).",
+      "actual": "The route returns 404 (\"Not Found\") for a real listing_id.",
       "how_found": "Requested the documented similar-listings route with a real listing ID.",
-      "impact": "A similar-listings component must be derived locally or omitted.",
+      "impact": "A \"you may also like\" component must be derived client-side from the bulk-downloaded dataset instead of calling this endpoint.",
       "evidence": [
         "MAG-4001518"
       ]
@@ -192,19 +195,19 @@
     {
       "endpoint": "/v1/favourites",
       "category": "missing_endpoint",
-      "documented": "Saved listings use GET, POST, and DELETE /v1/favourites routes.",
-      "actual": "The documented favourites routes return 404.",
-      "how_found": "Tested the documented saved-listing lifecycle.",
-      "impact": "Clients must use the live /v1/saved routes.",
+      "documented": "Saved listings use GET, POST { \"id\": ... }, and DELETE /v1/favourites/{id}.",
+      "actual": "GET and POST /v1/favourites both return 404 (\"Not Found\").",
+      "how_found": "Called GET and POST /v1/favourites exactly as documented.",
+      "impact": "Clients must use the live /v1/saved routes instead of /v1/favourites.",
       "evidence": []
     },
     {
       "endpoint": "/v1/saved",
       "category": "undocumented_endpoint",
       "documented": "No /v1/saved route is documented.",
-      "actual": "GET and POST /v1/saved work; POST accepts listing_id.",
-      "how_found": "Tested list and save operations with a real listing, then removed the test save.",
-      "impact": "This is the working saved-listing API.",
+      "actual": "GET /v1/saved lists a user's saved listings ({\"count\": ..., \"results\": [...]}), and POST /v1/saved with body {\"listing_id\": \"...\"} saves one (POSTing the documented {\"id\": ...} body instead returns 422, \"Field required: listing_id\").",
+      "how_found": "Tested list and save operations with a real listing_id against several undocumented candidate paths, then removed the test save with DELETE.",
+      "impact": "This is the working saved-listing API the frontend must implement against.",
       "evidence": [
         "MAG-4001518"
       ]
@@ -213,9 +216,9 @@
       "endpoint": "/v1/saved/{id}",
       "category": "undocumented_endpoint",
       "documented": "No live delete route is documented under /v1/saved.",
-      "actual": "DELETE /v1/saved/{listing_id} removes a saved listing.",
-      "how_found": "Completed the save, list, and delete lifecycle.",
-      "impact": "The frontend can implement persistent per-user saved listings.",
+      "actual": "DELETE /v1/saved/{listing_id} removes a saved listing and returns {\"ok\": true, \"listing_id\": ..., \"saved_count\": ...}.",
+      "how_found": "Completed the save -> list -> delete lifecycle end-to-end with one real listing.",
+      "impact": "The frontend can implement persistent per-user saved listings using this route.",
       "evidence": [
         "MAG-4001518"
       ]
@@ -223,31 +226,78 @@
     {
       "endpoint": "/v1/analytics/summary",
       "category": "missing_endpoint",
-      "documented": "The endpoint returns pre-computed city analytics.",
-      "actual": "The endpoint returns 404.",
-      "how_found": "Requested the documented analytics route after authentication.",
-      "impact": "Insights must be calculated from retrieved collections.",
+      "documented": "Returns pre-computed aggregates for the candidate's city (total_listings, median_price, median_price_per_sqft, by_locality, by_bhk).",
+      "actual": "The route returns 404 (\"Not Found\") both before and after authenticating.",
+      "how_found": "Requested the documented analytics route with a valid API key and a valid bearer token.",
+      "impact": "The insights screen must compute every aggregate itself from the bulk-downloaded /v1/listings, /v1/rentals, and /v1/projects collections; there is no server-side summary to fall back on.",
       "evidence": []
     },
     {
       "endpoint": "/v1/projects",
       "category": "units",
-      "documented": "price_min and price_max are integer rupee values.",
-      "actual": "Project prices are decimal values with mixed lakh/crore encoding; for example P40001 has price_min 66.1 and price_max 1.95.",
-      "how_found": "Inspected all downloaded project prices and tested the unit hypothesis against impossible price_min > price_max pairs.",
-      "impact": "Project prices must be normalized before display and costliest-project calculations.",
+      "documented": "price_min and price_max are in rupees, everywhere in the API.",
+      "actual": "price_min and price_max are each independently encoded as either lakhs or crores of rupees, not rupees: every raw value across all 460 projects falls into one of two disjoint bands (roughly 1.0-3.78 or 70.2-99.9) with nothing in between. Values under 10 are already in crores (multiply by 1e7); values 10 and over are in lakhs (multiply by 1e5). Reading both fields as the same unit produces 357 projects where price_min > price_max, which is impossible; applying the per-field split leaves zero such violations. The live API's own sort_by=price_max ordering independently confirms this exact conversion (a raw value of 70.2 sorts as smaller than a raw value of 1.01, i.e. the server itself treats 70.2 as 0.702 crore).",
+      "how_found": "Sorted every project's raw price_min and price_max, found the two-band gap, verified the per-field conversion eliminates all min>max violations (versus 357 under a naive same-unit reading), then cross-checked it against the live sort_by=price_max endpoint parameter.",
+      "impact": "Displaying price_min/price_max as raw rupees, or converting them with a single shared rule instead of per-field, makes every project's price wrong and changes which project is reported as costliest.",
       "evidence": [
         "P40001",
-        "P40451"
+        "P40224",
+        "P40451",
+        "P40008",
+        "P40096"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "units",
+      "documented": "Area fields are in square feet, integer, everywhere in the API.",
+      "actual": "About 337 of 842 magichomes-sourced listings (the listing_id prefix MAG-) report carpet_area and super_built_up_area in square metres instead of square feet. Every other source website (100acres, dwelling, squarelane, zerobroker) is consistently in square feet for every bedroom count; the affected magichomes records are 5-10x smaller than the smallest legitimate square-foot value for the same bedroom count, with a large, clean gap and nothing in between. Multiplying the affected values by 10.7639 (sqm->sqft) restores them to the normal range while preserving the same ~1.33x super_built_up_area/carpet_area ratio seen everywhere else, and resolves several near-duplicate listing pairs whose areas otherwise looked ~90% different.",
+      "how_found": "Computed the minimum carpet_area per bedroom count from the four non-magichomes source websites, then found magichomes records far below that floor; verified the super_built_up/carpet_area ratio and cross-checked against magichomes duplicates on other source sites (e.g. MAG-4003717 carpet_area 69 vs. its ZER-4003843 duplicate's carpet_area 736; 69 sqm = 743 sqft).",
+      "impact": "Any price-per-square-foot calculation (including this submission's avg_price_per_sqft_2bhk) is roughly 40% too high if magichomes areas are used as-is; areas and price/sqft must be corrected for these records before display or calculation.",
+      "evidence": [
+        "MAG-4003717",
+        "MAG-4000363",
+        "MAG-4000013",
+        "MAG-4000020",
+        "MAG-4000039",
+        "MAG-4000063",
+        "MAG-4000067",
+        "MAG-4000075",
+        "MAG-4000126",
+        "MAG-4000162",
+        "MAG-4000166",
+        "MAG-4000169",
+        "MAG-4000182",
+        "MAG-4000197",
+        "MAG-4000213",
+        "MAG-4000240",
+        "MAG-4000243",
+        "MAG-4000257",
+        "MAG-4000269",
+        "MAG-4000272"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "timestamps",
+      "documented": "Timestamps are ISO 8601, UTC, with a Z suffix, everywhere in the API.",
+      "actual": "Every one of the 4100 retrievable /v1/listings posted_at values is timezone-naive (no Z, no offset, e.g. 2026-01-19T12:56:00), while every one of the 1550 retrievable /v1/rentals posted_at values carries a Z suffix (e.g. 2026-06-02T03:58:00Z). The convention is not applied uniformly across endpoints.",
+      "how_found": "Checked the trailing characters of posted_at on every downloaded listing and rental record; 4100/4100 listings are naive and 1550/1550 rentals end in Z.",
+      "impact": "Date-based calculations (e.g. counting listings posted in a window before REFERENCE) must interpret naive /v1/listings timestamps explicitly as Asia/Kolkata (matching /health's own timezone) rather than assuming UTC.",
+      "evidence": [
+        "MAG-4001518",
+        "100-4000035",
+        "R4000001",
+        "R4000002"
       ]
     },
     {
       "endpoint": "/v1/projects",
       "category": "consistency",
-      "documented": "total_listings always agrees with currently available listings.",
-      "actual": "119 projects have total_listings values different from the count of retrieved live listings linked to the project.",
-      "how_found": "Compared each project's total_listings with grouped live listing records.",
-      "impact": "Project listing counts should be labeled as API-reported values or reconciled client side.",
+      "documented": "total_listings is recomputed whenever a listing is added or withdrawn, so it always agrees with GET /v1/listings?project_id=....",
+      "actual": "119 of 460 projects have a total_listings value that disagrees with the number of retrievable is_live:true listings that reference that project_id (336 disagree if inactive listings are counted too); 57 projects report total_listings:0 while 52 of those actually have one or more live listings linked to them.",
+      "how_found": "Grouped all retrievable listings by project_id and is_live, then compared each project's reported total_listings against both the live-only and all-record counts.",
+      "impact": "total_listings cannot be trusted for display or for the projects_with_wrong_listing_count calculation; the real count must be derived by filtering /v1/listings by project_id and is_live client-side.",
       "evidence": [
         "P40014",
         "P40015",
@@ -274,9 +324,9 @@
       "endpoint": "/v1/listings/{id}",
       "category": "data_quality",
       "documented": "Listing records describe ordinary real properties.",
-      "actual": "45 records contain structurally impossible values, including negative prices, invalid floor relationships, impossible bedroom/property combinations, inverted areas, or invalid coordinates.",
-      "how_found": "Tested record-level invariants across the complete listing download.",
-      "impact": "These records if displayed would mislead users and analysts. The server should validate and reject them, or the frontend should filter them out.",
+      "actual": "45 records contain structurally impossible values, in five disjoint groups of exactly nine each: negative price, floor greater than the building's own total_floors (by 3-14 floors), bedroom:0 on a non-plot property (with carpet areas up to 1962 sqft, i.e. not studios), super_built_up_area smaller than carpet_area (impossible, since super built-up must include the carpet area), and latitude/longitude swapped or otherwise outside the rest of the dataset's Chennai-area bounds.",
+      "how_found": "Tested five independent structural invariants across the complete listing download and confirmed each violating group is clean (a large gap between violating and legitimate values, e.g. floor exceeds total_floors by at least 3 with zero near-miss cases).",
+      "impact": "These records if displayed would mislead users; they are excluded from this submission's avg_price_per_sqft_2bhk calculation and reported as corrupt_listing_ids.",
       "evidence": [
         "100-4000397",
         "100-4000449",
@@ -304,9 +354,9 @@
       "endpoint": "/v1/listings/{id}",
       "category": "fraud",
       "documented": "Listing records are genuine property listings.",
-      "actual": "Nine positive-price records are strong fake-listing candidates because their prices are implausibly low for the dataset and they match the bait-listing pattern.",
-      "how_found": "Tested the low-price bait hypothesis against the complete listing dataset and reviewed the candidate records.",
-      "impact": "These records are excluded from the relevant average-price calculation and reported as fake candidates.",
+      "actual": "9 records advertise full-property sales at implausible prices between 6,470 and 16,320 rupees -- less than a single month's rent for a comparable unit, and a 72x jump below the next-cheapest genuine listing (1,160,000) with a clean gap and nothing in between. These are bait listings meant to generate enquiries, not genuine sale prices.",
+      "how_found": "Sorted every positive listing price and found a cluster of exactly 9 records far below the rest of the distribution, then reviewed each one's full record for internal plausibility (normal bedroom counts, normal areas, verified=true on most) confirming they are not simply corrupt/impossible records.",
+      "impact": "These records are excluded from the avg_price_per_sqft_2bhk calculation and reported as fake_listing_ids; a frontend should flag or hide them rather than surface them as real deals.",
       "evidence": [
         "100-4001484",
         "100-4001961",
