@@ -4,6 +4,7 @@
 	import type { Listing, ListingCollection } from '../api/listings/+server';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { isSaved, loadSaved, toggleSaved } from '$lib/saved-store.svelte';
+	import RangeSlider from '$lib/RangeSlider.svelte';
 
 	let listings = $state<Listing[]>([]);
 	let loading = $state(true);
@@ -14,8 +15,10 @@
 	let locality = $state('');
 	let bedroom = $state('');
 	let furnishing = $state('');
-	let minPrice = $state('');
-	let maxPrice = $state('');
+	const priceMin = 0;
+	const priceMax = 100_000_000;
+	let minPrice = $state(priceMin);
+	let maxPrice = $state(priceMax);
 	let liveOnly = $state(true);
 	let propertyType = $state('');
 	let sortBy = $state('');
@@ -32,8 +35,8 @@
 		if (sortBy) params.set('sort_by', sortBy);
 		if (order) params.set('order', order);
 		if (furnishing) params.set('furnishing', furnishing);
-		if (minPrice) params.set('min_price', minPrice);
-		if (maxPrice) params.set('max_price', maxPrice);
+		if (minPrice > priceMin) params.set('min_price', String(minPrice));
+		if (maxPrice < priceMax) params.set('max_price', String(maxPrice));
 		if (liveOnly) params.set('is_live', 'true');
 		return params;
 	}
@@ -110,8 +113,8 @@
 		sortBy = '';
 		order = 'asc';
 		furnishing = '';
-		minPrice = '';
-		maxPrice = '';
+		minPrice = priceMin;
+		maxPrice = priceMax;
 		liveOnly = true;
 		void fetchListings(true);
 	}
@@ -203,28 +206,16 @@
 					<option value="fully-furnished">Fully-furnished</option>
 				</select>
 			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Min price
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]"
-					bind:value={minPrice}
-					type="number"
-					min="0"
-					placeholder="₹"
-					oninput={() => void fetchListings(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Max price
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit text-[#1e2924]"
-					bind:value={maxPrice}
-					type="number"
-					min="0"
-					placeholder="₹"
-					oninput={() => void fetchListings(true)}
-				/>
-			</label>
+			<RangeSlider
+				label="Price"
+				min={priceMin}
+				max={priceMax}
+				step={100_000}
+				bind:lower={minPrice}
+				bind:upper={maxPrice}
+				format={(value) => {return value >= 10000000 ? `${(value / 10000000).toFixed(value === 0 ? 0 : 1)} Cr` : `₹${(value / 100000).toFixed(value === 0 ? 0 : 1)}L`}}
+				onChange={() => debounceFetchListings(true)}
+			/>
 
 			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 				Sort by

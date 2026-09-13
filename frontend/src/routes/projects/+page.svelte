@@ -3,25 +3,33 @@
 	import { onMount } from 'svelte';
 	import type { Project, ProjectCollection } from '../api/projects/+server';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import RangeSlider from '$lib/RangeSlider.svelte';
 
 	let projects = $state<Project[]>([]);
 	let loading = $state(true);
 	let loadingMore = $state(false);
 	let error = $state('');
 	let hasMore = $state(false);
-	let total = $state(0);
 	let offset = $state(0);
 	let locality = $state('');
 	let developer = $state('');
 	let projectStatus = $state('');
-	let minPrice = $state('');
-	let maxPrice = $state('');
-	let minArea = $state('');
-	let maxArea = $state('');
-	let minUnits = $state('');
-	let maxUnits = $state('');
-	let minTowers = $state('');
-	let maxTowers = $state('');
+	const budgetMin = 0;
+	const budgetMax = 1_000_000_000;
+	const areaMin = 0;
+	const areaMax = 10_000;
+	const unitsMin = 0;
+	const unitsMax = 5_000;
+	const towersMin = 0;
+	const towersMax = 100;
+	let minPrice = $state(budgetMin);
+	let maxPrice = $state(budgetMax);
+	let minArea = $state(areaMin);
+	let maxArea = $state(areaMax);
+	let minUnits = $state(unitsMin);
+	let maxUnits = $state(unitsMax);
+	let minTowers = $state(towersMin);
+	let maxTowers = $state(towersMax);
 	let sortBy = $state('launch_date');
 	let order = $state('desc');
 
@@ -35,14 +43,14 @@
 		if (locality) params.set('locality', locality.trim().toLowerCase());
 		if (developer) params.set('developer', developer.trim().toLowerCase());
 		if (projectStatus) params.set('project_status', projectStatus);
-		if (minPrice) params.set('min_price', minPrice);
-		if (maxPrice) params.set('max_price', maxPrice);
-		if (minArea) params.set('min_area', minArea);
-		if (maxArea) params.set('max_area', maxArea);
-		if (minUnits) params.set('min_units', minUnits);
-		if (maxUnits) params.set('max_units', maxUnits);
-		if (minTowers) params.set('min_towers', minTowers);
-		if (maxTowers) params.set('max_towers', maxTowers);
+		if (minPrice > budgetMin) params.set('min_price', String(minPrice));
+		if (maxPrice < budgetMax) params.set('max_price', String(maxPrice));
+		if (minArea > areaMin) params.set('min_area', String(minArea));
+		if (maxArea < areaMax) params.set('max_area', String(maxArea));
+		if (minUnits > unitsMin) params.set('min_units', String(minUnits));
+		if (maxUnits < unitsMax) params.set('max_units', String(maxUnits));
+		if (minTowers > towersMin) params.set('min_towers', String(minTowers));
+		if (maxTowers < towersMax) params.set('max_towers', String(maxTowers));
 		return params;
 	}
 
@@ -82,14 +90,14 @@
 		locality = '';
 		developer = '';
 		projectStatus = '';
-		minPrice = '';
-		maxPrice = '';
-		minArea = '';
-		maxArea = '';
-		minUnits = '';
-		maxUnits = '';
-		minTowers = '';
-		maxTowers = '';
+		minPrice = budgetMin;
+		maxPrice = budgetMax;
+		minArea = areaMin;
+		maxArea = areaMax;
+		minUnits = unitsMin;
+		maxUnits = unitsMax;
+		minTowers = towersMin;
+		maxTowers = towersMax;
 		sortBy = 'launch_date';
 		order = 'desc';
 		void fetchProjects(true);
@@ -156,94 +164,44 @@
 					oninput={() => void fetchProjects(true)}
 				/>
 			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Min budget
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={minPrice}
-					type="number"
-					min="0"
-					placeholder="₹"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Max budget
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={maxPrice}
-					type="number"
-					min="0"
-					placeholder="₹"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Min area
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={minArea}
-					type="number"
-					min="0"
-					placeholder="sq ft"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Max area
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={maxArea}
-					type="number"
-					min="0"
-					placeholder="sq ft"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Min units
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={minUnits}
-					type="number"
-					min="0"
-					placeholder="units"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Max units
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={maxUnits}
-					type="number"
-					min="0"
-					placeholder="units"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Min towers
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={minTowers}
-					type="number"
-					min="0"
-					placeholder="towers"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Max towers
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={maxTowers}
-					type="number"
-					min="0"
-					placeholder="towers"
-					oninput={() => void fetchProjects(true)}
-				/>
-			</label>
+			<RangeSlider
+				label="Budget"
+				min={budgetMin}
+				max={budgetMax}
+				step={10_000_000}
+				bind:lower={minPrice}
+				bind:upper={maxPrice}
+				format={(value) => `${(value / 10_000_000).toFixed(0)}Cr`}
+				onChange={() => void fetchProjects(true)}
+			/>
+			<RangeSlider
+				label="Area"
+				min={areaMin}
+				max={areaMax}
+				step={100}
+				bind:lower={minArea}
+				bind:upper={maxArea}
+				format={(value) => `${value.toLocaleString('en-IN')} sq ft`}
+				onChange={() => void fetchProjects(true)}
+			/>
+			<RangeSlider
+				label="Units"
+				min={unitsMin}
+				max={unitsMax}
+				step={50}
+				bind:lower={minUnits}
+				bind:upper={maxUnits}
+				onChange={() => void fetchProjects(true)}
+			/>
+			<RangeSlider
+				label="Towers"
+				min={towersMin}
+				max={towersMax}
+				step={1}
+				bind:lower={minTowers}
+				bind:upper={maxTowers}
+				onChange={() => void fetchProjects(true)}
+			/>
 			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 				Sort by
 				<select

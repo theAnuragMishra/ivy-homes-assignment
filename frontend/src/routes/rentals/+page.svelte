@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import type { Rental, RentalCollection } from '../api/rentals/+server';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import RangeSlider from '$lib/RangeSlider.svelte';
 
 	let rentals = $state<Rental[]>([]);
 	let loading = $state(true);
@@ -14,8 +15,10 @@
 	let bedroom = $state('');
 	let propertyType = $state('');
 	let furnishing = $state('');
-	let minPrice = $state('');
-	let maxPrice = $state('');
+	const rentMin = 0;
+	const rentMax = 500_000;
+	let minPrice = $state(rentMin);
+	let maxPrice = $state(rentMax);
 	let liveOnly = $state(true);
 	let sortBy = $state('');
 	let order = $state('asc');
@@ -31,8 +34,8 @@
 		if (sortBy) params.set('sort_by', sortBy);
 		if (order) params.set('order', order);
 		if (furnishing) params.set('furnishing', furnishing);
-		if (minPrice) params.set('min_price', minPrice);
-		if (maxPrice) params.set('max_price', maxPrice);
+		if (minPrice > rentMin) params.set('min_price', String(minPrice));
+		if (maxPrice < rentMax) params.set('max_price', String(maxPrice));
 		if (liveOnly) params.set('is_live', 'true');
 		return params;
 	}
@@ -95,8 +98,8 @@
 		bedroom = '';
 		propertyType = '';
 		furnishing = '';
-		minPrice = '';
-		maxPrice = '';
+		minPrice = rentMin;
+		maxPrice = rentMax;
 		liveOnly = true;
 		sortBy = '';
 		order = 'asc';
@@ -186,28 +189,16 @@
 					<option value="fully-furnished">Fully-furnished</option>
 				</select>
 			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Min rent
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={minPrice}
-					type="number"
-					min="0"
-					placeholder="₹/month"
-					oninput={() => debounceFetchRentals(true)}
-				/>
-			</label>
-			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-				Max rent
-				<input
-					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-					bind:value={maxPrice}
-					type="number"
-					min="0"
-					placeholder="₹/month"
-					oninput={() => debounceFetchRentals(true)}
-				/>
-			</label>
+			<RangeSlider
+				label="Monthly rent"
+				min={rentMin}
+				max={rentMax}
+				step={1_000}
+				bind:lower={minPrice}
+				bind:upper={maxPrice}
+				format={(value) => `₹${Math.round(value / 1_000)}k`}
+				onChange={() => debounceFetchRentals(true)}
+			/>
 			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 				Sort by
 				<select
