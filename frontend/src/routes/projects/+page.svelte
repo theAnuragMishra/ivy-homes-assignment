@@ -54,7 +54,24 @@
 		return params;
 	}
 
+	let searchTimer: ReturnType<typeof setTimeout> | undefined;
+	let searchController: AbortController | null = null;
+
+	function debounceFetchProjects(reset = false) {
+		clearTimeout(searchTimer);
+		searchTimer = setTimeout(() => {
+			void fetchProjects(reset);
+		}, 300);
+	}
+
 	async function fetchProjects(reset = false) {
+		if (reset) {
+			searchController?.abort();
+			searchController = new AbortController();
+		}
+
+		const controller = searchController;
+
 		if (reset) {
 			loading = true;
 			error = '';
@@ -65,7 +82,9 @@
 
 		try {
 			const startOffset = reset ? 0 : offset;
-			const response = await fetch(`/api/projects?${buildQuery(startOffset)}`);
+			const response = await fetch(`/api/projects?${buildQuery(startOffset)}`, {
+				signal: controller?.signal
+			});
 			const payload = (await response.json()) as ProjectCollection | { detail?: string };
 			if (!response.ok || !('results' in payload)) {
 				error =
@@ -77,12 +96,14 @@
 			projects = reset ? payload.results : [...projects, ...payload.results];
 			offset = startOffset + payload.results.length;
 			hasMore = payload.has_more;
-			total = payload.total;
-		} catch {
+		} catch (err) {
+			if (err instanceof DOMException && err.name === 'AbortError') return;
 			error = 'Unable to reach the application server.';
 		} finally {
-			loading = false;
-			loadingMore = false;
+			if (!controller?.signal.aborted) {
+				loading = false;
+				loadingMore = false;
+			}
 		}
 	}
 
@@ -139,7 +160,7 @@
 					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
 					bind:value={locality}
 					placeholder="e.g. perungudi"
-					oninput={() => void fetchProjects(true)}
+					oninput={() => debounceFetchProjects(true)}
 				/>
 			</label>
 			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
@@ -161,7 +182,7 @@
 					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
 					bind:value={developer}
 					placeholder="e.g. Prestige"
-					oninput={() => void fetchProjects(true)}
+					oninput={() => debounceFetchProjects(true)}
 				/>
 			</label>
 			<RangeSlider
@@ -172,7 +193,7 @@
 				bind:lower={minPrice}
 				bind:upper={maxPrice}
 				format={(value) => `${(value / 10_000_000).toFixed(0)}Cr`}
-				onChange={() => void fetchProjects(true)}
+				onChange={() => debounceFetchProjects(true)}
 			/>
 			<RangeSlider
 				label="Area"
@@ -182,7 +203,7 @@
 				bind:lower={minArea}
 				bind:upper={maxArea}
 				format={(value) => `${value.toLocaleString('en-IN')} sq ft`}
-				onChange={() => void fetchProjects(true)}
+				onChange={() => debounceFetchProjects(true)}
 			/>
 			<RangeSlider
 				label="Units"
@@ -191,7 +212,7 @@
 				step={50}
 				bind:lower={minUnits}
 				bind:upper={maxUnits}
-				onChange={() => void fetchProjects(true)}
+				onChange={() => debounceFetchProjects(true)}
 			/>
 			<RangeSlider
 				label="Towers"
@@ -200,7 +221,7 @@
 				step={1}
 				bind:lower={minTowers}
 				bind:upper={maxTowers}
-				onChange={() => void fetchProjects(true)}
+				onChange={() => debounceFetchProjects(true)}
 			/>
 			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
 				Sort by
