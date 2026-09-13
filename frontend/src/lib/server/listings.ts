@@ -79,6 +79,22 @@ export type ListingFilters = {
 
 export function filterListings(listings: Listing[], filters: ListingFilters): Listing[] {
 	return listings.filter((item) => {
+		if (item.price && item.price <= 0) {
+			return false;
+		}
+		if (item.bedroom == 0 && item.property_type != 'plot') {
+			return false;
+		}
+		if (item.floor && item.total_floors && item.floor > item.total_floors) {
+			return false;
+		}
+		if (
+			item.carpet_area &&
+			item.super_built_up_area &&
+			item.carpet_area > item.super_built_up_area
+		) {
+			return false;
+		}
 		if (filters.locality && item.locality.toLowerCase() !== filters.locality.toLowerCase()) {
 			return false;
 		}

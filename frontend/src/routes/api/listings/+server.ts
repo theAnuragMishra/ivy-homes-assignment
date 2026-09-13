@@ -54,21 +54,7 @@ export const GET: RequestHandler = async (event) => {
 
 		const limit = Math.min(numberParam(search.get('limit')) ?? 24, 200);
 		const offset = numberParam(search.get('offset')) ?? 0;
-		const page = sorted.slice(offset, offset + limit).filter(r=>{
-					if(r.price && r.price <= 0){
-						return false;
-					}
-					if(r.bedroom == 0 && r.property_type != "plot"){
-						return false;
-					}
-					if(r.floor && r.total_floors && r.floor > r.total_floors){
-						return false;
-					}
-					if(r.carpet_area && r.super_built_up_area && r.carpet_area > r.super_built_up_area){
-						return false;
-					}
-					return true;
-				});
+		const page = sorted.slice(offset, offset + limit);
 
 		const result: ListingCollection = {
 			limit,
