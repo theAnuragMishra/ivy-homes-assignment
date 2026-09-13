@@ -22,16 +22,6 @@ function numberParam(value: string | null): number | undefined {
 	return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-/**
- * This route deliberately does NOT forward filter parameters to the
- * upstream /v1/listings request. The live API accepts furnishing, is_live,
- * project_id, min_price, and max_price but silently ignores every one of
- * them (verified: filtered and unfiltered requests return byte-identical
- * records). Instead, the full listing collection is pulled once per server
- * process (dataset-cache.ts) and every filter, the magichomes sqm/sqft unit
- * fix, sorting, and pagination are all applied locally here, so filters
- * work correctly regardless of what the upstream API does with them.
- */
 export const GET: RequestHandler = async (event) => {
 	const search = event.url.searchParams;
 
@@ -50,7 +40,11 @@ export const GET: RequestHandler = async (event) => {
 			projectId: search.get('project_id') ?? undefined
 		});
 
-		const sorted = sortListings(filtered, search.get('sort_by') ?? undefined, search.get('order') ?? undefined);
+		const sorted = sortListings(
+			filtered,
+			search.get('sort_by') ?? undefined,
+			search.get('order') ?? undefined
+		);
 
 		const limit = Math.min(numberParam(search.get('limit')) ?? 24, 200);
 		const offset = numberParam(search.get('offset')) ?? 0;
