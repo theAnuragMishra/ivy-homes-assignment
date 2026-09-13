@@ -43,7 +43,7 @@
 </svelte:head>
 
 <main
-	class="mx-auto w-[min(76rem,calc(100%-3rem))] py-8 pb-20 max-[900px]:w-[calc(100%-3rem)] max-[560px]:w-[calc(100%-2rem)]"
+	class="mx-auto w-[min(76rem,calc(100%-3rem))] pb-20 max-[900px]:w-[calc(100%-3rem)] max-[560px]:w-[calc(100%-2rem)]"
 >
 	<header class="my-16 flex items-end justify-between gap-10 max-[700px]:my-12 max-[700px]:block">
 		<div class="max-w-3xl">

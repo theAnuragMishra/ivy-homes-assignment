@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import MarketInsights from '$lib/MarketInsights.svelte';
+	import heroImage from '../assets/Hero.jpg';
 
 	let authenticated = $state(false);
 	let loading = $state(true);
@@ -37,22 +38,37 @@
 {#if loading}
 	<main class="grid min-h-screen place-items-center text-[#68746d]">Loading your workspace…</main>
 {:else if authenticated}
-	<main class="mx-auto w-[min(72rem,calc(100%-3rem))] py-12 max-[520px]:w-[calc(100%-2rem)] max-[520px]:py-6">
-		<header>
-			<div>
-			<h1 class="m-0 max-w-[38rem] text-[clamp(2.4rem,7vw,5rem)] leading-none tracking-[-.05em]">Your property workspace</h1>
+	<main class="mx-auto w-[min(72rem,calc(100%-3rem))] max-[520px]:w-[calc(100%-2rem)] py-12 max-[520px]:py-6">
+		<section class="relative isolate min-h-[30rem] overflow-hidden rounded-[2rem] bg-[#1e2924] shadow-[0_1.5rem_4rem_#25352a20]" aria-labelledby="hero-title">
+			<img class="absolute inset-0 -z-20 h-full w-full object-cover" src={heroImage} alt="A modern home surrounded by greenery" />
+			<div class="absolute inset-0 -z-10 bg-gradient-to-r from-[#07150eeF] via-[#102219b3] to-[#10221933]"></div>
+			<div class="absolute inset-0 -z-10 bg-gradient-to-b from-[#07150e66] via-transparent to-[#07150ed9]"></div>
+			<div class="flex min-h-[30rem] flex-col justify-between p-8 text-white max-[700px]:min-h-[44rem] max-[560px]:p-6">
+				<div class="max-w-2xl">
+					<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#d9ebdc]">RESEARCH-BACKED BROWSING</p>
+					<h1 id="hero-title" class="m-0 text-[clamp(2.8rem,7vw,6rem)] leading-[.9] tracking-[-.07em]">
+						Find a place that feels like home.
+					</h1>
+					<p class="mt-6 max-w-xl text-lg leading-relaxed text-[#f0f5ef]">
+						Compare sale listings, rentals, and new projects across the city.
+					</p>
+				</div>
+				<nav class="grid grid-cols-3 gap-4 max-[700px]:grid-cols-1" aria-label="Main sections">
+					<a class="grid gap-1.5 rounded-2xl border border-[#8bb8e8]/50 bg-[#dbeafe]/95 p-4 text-[#102a43] no-underline shadow-lg backdrop-blur transition hover:-translate-y-1 hover:bg-[#eff6ff]" href={resolve('/listings')}>
+						<strong>Browse listings <span class="text-[#1d4ed8]">→</span></strong>
+						<span class="text-xs leading-relaxed text-[#36536f]">Filter and compare sale properties.</span>
+					</a>
+					<a class="grid gap-1.5 rounded-2xl border border-[#8bb8e8]/50 bg-[#dbeafe]/95 p-4 text-[#102a43] no-underline shadow-lg backdrop-blur transition hover:-translate-y-1 hover:bg-[#eff6ff]" href={resolve('/rentals')}>
+						<strong>Explore rentals <span class="text-[#1d4ed8]">→</span></strong>
+						<span class="text-xs leading-relaxed text-[#36536f]">See monthly rent and locality options.</span>
+					</a>
+					<a class="grid gap-1.5 rounded-2xl border border-[#8bb8e8]/50 bg-[#dbeafe]/95 p-4 text-[#102a43] no-underline shadow-lg backdrop-blur transition hover:-translate-y-1 hover:bg-[#eff6ff]" href={resolve('/projects')}>
+						<strong>View projects <span class="text-[#1d4ed8]">→</span></strong>
+						<span class="text-xs leading-relaxed text-[#36536f]">Browse developer projects and pricing.</span>
+					</a>
+				</nav>
 			</div>
-		</header>
-		<section class="my-28 mb-12 max-w-2xl max-[520px]:mt-20">
-			<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">RESEARCH-BACKED BROWSING</p>
-			<h2 class="m-0 text-[clamp(2rem,5vw,4rem)] leading-none tracking-[-.05em]">Listings, rentals, and projects for your city.</h2>
-			
 		</section>
-		<nav class="grid grid-cols-4 gap-4 max-[800px]:grid-cols-2 max-[520px]:grid-cols-1" aria-label="Main sections">
-			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href={resolve("/listings")}><strong>Browse listings</strong><span class="text-sm leading-relaxed text-[#68746d]">Filter and compare sale properties.</span></a>
-			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href="/rentals"><strong>Explore rentals</strong><span class="text-sm leading-relaxed text-[#68746d]">See monthly rent and locality options.</span></a>
-			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href="/projects"><strong>View projects</strong><span class="text-sm leading-relaxed text-[#68746d]">Browse developer projects and pricing.</span></a>
-		</nav>
 		<MarketInsights />
 	</main>
 {/if}
