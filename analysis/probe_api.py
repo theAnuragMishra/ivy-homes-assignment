@@ -56,6 +56,14 @@ def main() -> None:
                 "/v1/listings",
                 {"limit": 200, "offset": 0, "project_id": "P40001"},
             ),
+            "listings_min_max_price": (
+                "/v1/listings",
+                {"limit": 5, "offset": 0, "min_price": 10_000_000, "max_price": 20_000_000},
+            ),
+            "listings_property_type": (
+                "/v1/listings",
+                {"limit": 5, "offset": 0, "property_type": "villa"},
+            ),
             "listings_sort_price": (
                 "/v1/listings",
                 {"limit": 10, "offset": 0, "sort_by": "price", "order": "asc"},
