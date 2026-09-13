@@ -53,10 +53,7 @@
 		<section class="my-28 mb-12 max-w-2xl max-[520px]:mt-20">
 			<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">RESEARCH-BACKED BROWSING</p>
 			<h2 class="m-0 text-[clamp(2rem,5vw,4rem)] leading-none tracking-[-.05em]">Listings, rentals, and projects for your city.</h2>
-			<p class="max-w-xl leading-relaxed text-[#68746d]">
-				The app will use the API behavior we verified instead of trusting stale documentation:
-				actual pagination, saved listings, token refresh, and data-quality insights.
-			</p>
+			
 		</section>
 		<nav class="grid grid-cols-4 gap-4 max-[800px]:grid-cols-2 max-[520px]:grid-cols-1" aria-label="Main sections">
 			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href={resolve("/listings")}><strong>Browse listings</strong><span class="text-sm leading-relaxed text-[#68746d]">Filter and compare sale properties.</span></a>

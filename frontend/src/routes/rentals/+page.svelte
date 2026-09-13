@@ -116,7 +116,7 @@
 <main
 	class="mx-auto w-[min(76rem,calc(100%-3rem))] py-8 pb-16 max-[900px]:w-[calc(100%-3rem)] max-[560px]:w-[calc(100%-2rem)]"
 >
-	<header class="mb-4 flex items-end gap-8">
+	<header class="mb-10 flex items-end gap-8">
 		<div>
 			<a class="mb-8 block text-sm font-bold text-[#1e5b3a] no-underline" href={resolve('/')}
 				>← Workspace</a
@@ -128,169 +128,170 @@
 		</div>
 	</header>
 
-	<section
-		class="filters grid grid-cols-4 items-end gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-4 max-[900px]:grid-cols-3 max-[560px]:grid-cols-1"
-		aria-label="Rental filters"
-	>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Locality
-			<input
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={locality}
-				placeholder="e.g. t nagar"
-				oninput={() => debounceFetchRentals(true)}
-			/>
-		</label>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Property Type
-			<select
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={propertyType}
-				onchange={() => void fetchRentals(true)}
-			>
-				<option value="">Any</option>
-				<option value="apartment">Apartment</option>
-				<option value="villa">Villa</option>
-				<option value="plot">Plot</option>
-				<option value="independent house">Independent House</option>
-				<option value="builder floor">Builder Floor</option>
-			</select>
-		</label>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Bedrooms
-			<select
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={bedroom}
-				onchange={() => void fetchRentals(true)}
-			>
-				<option value="">Any bedrooms</option>
-				<option value="0">Studio</option>
-				<option value="1">1 BHK</option>
-				<option value="2">2 BHK</option>
-				<option value="3">3 BHK</option>
-				<option value="4">4 BHK</option>
-				<option value="5">5 BHK</option>
-			</select>
-		</label>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Furnishing
-			<select
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={furnishing}
-				onchange={() => void fetchRentals(true)}
-			>
-				<option value="">Any furnishing</option>
-				<option value="unfurnished">Unfurnished</option>
-				<option value="semi-furnished">Semi-furnished</option>
-				<option value="fully-furnished">Fully-furnished</option>
-			</select>
-		</label>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Min rent
-			<input
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={minPrice}
-				type="number"
-				min="0"
-				placeholder="₹/month"
-				oninput={() => debounceFetchRentals(true)}
-			/>
-		</label>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Max rent
-			<input
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={maxPrice}
-				type="number"
-				min="0"
-				placeholder="₹/month"
-				oninput={() => debounceFetchRentals(true)}
-			/>
-		</label>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Sort by
-			<select
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={sortBy}
-				onchange={() => void fetchRentals(true)}
-			>
-				<option value="">Default</option>
-				<option value="price">Rent</option>
-				<option value="carpet_area">Carpet Area</option>
-				<option value="posted_at">Posted At</option>
-				<option value="bedroom">Bedroom</option>
-			</select>
-		</label>
-		<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
-			Order
-			<select
-				class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
-				bind:value={order}
-				onchange={() => void fetchRentals(true)}
-			>
-				<option value="asc">Ascending</option>
-				<option value="desc">Descending</option>
-			</select>
-		</label>
-		<label class="flex items-center gap-1.5 text-xs font-bold text-[#526058]">
-			<input type="checkbox" bind:checked={liveOnly} onchange={() => void fetchRentals(true)} />
-			Active only
-		</label>
-		<button
-			class="clear cursor-pointer rounded-[.55rem] border-0 bg-[#e8eee9] px-4 py-3 font-inherit font-extrabold text-[#1e5b3a]"
-			type="button"
-			onclick={resetFilters}>Clear</button
+	<div class="grid grid-cols-[16rem_minmax(0,1fr)] items-start gap-8 max-[900px]:grid-cols-1">
+		<aside
+			class="sticky top-6 grid gap-4 rounded-2xl border border-[#e1ddd4] bg-white p-4 max-[900px]:static"
+			aria-label="Rental filters"
 		>
-	</section>
-
-	{#if error}
-		<p class="py-8 text-[#a3362d]" role="alert">{error}</p>
-	{:else if loading}
-		<p class="py-8 text-[#68746d]">Loading rentals…</p>
-	{:else}
-		<div class="my-8 flex items-baseline gap-2 text-[#68746d]">
-			<span>Loaded {rentals.length} rentals</span>
-		</div>
-		{#if rentals.length === 0}
-			<p class="py-8 text-[#68746d]">No rentals match these filters.</p>
-		{:else}
-			<section
-				class="grid grid-cols-3 gap-4 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1"
-				aria-label="Rentals"
-			>
-				{#each rentals as rental (rental.listing_id)}
-					<a
-						class="grid gap-2.5 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]"
-						href={resolve(`/rentals/${rental.listing_id}`)}
-					>
-						<div class="flex justify-between text-xs font-extrabold text-[#557762]">
-							<span class="tag rounded-md bg-[#e8eee9] px-2 py-1">{rental.bedroom} BHK</span>
-							<span class={rental.is_live ? 'text-[#557762]' : 'text-[#a3362d]'}
-								>{rental.is_live ? 'Live' : 'Inactive'}</span
-							>
-						</div>
-						<h2 class="m-0 mt-2 text-xl">{rental.apartment_name}</h2>
-						<p class="m-0 text-sm text-[#68746d]">{rental.locality} · {rental.property_type}</p>
-						<strong class="mt-1 text-[1.35rem]"
-							>₹{rental.price.toLocaleString('en-IN')}/month</strong
-						>
-						<p class="m-0 text-sm text-[#68746d]">
-							Deposit ₹{rental.deposit.toLocaleString('en-IN')} · {rental.carpet_area.toLocaleString()}
-							sq ft · {rental.furnishing}
-						</p>
-					</a>
-				{/each}
-			</section>
-			{#if hasMore}
-				<button
-					class="load-more mx-auto mt-8 block cursor-pointer rounded-[.55rem] border-0 bg-[#1e5b3a] px-4 py-3 font-inherit font-extrabold text-white"
-					type="button"
-					disabled={loadingMore}
-					onclick={() => void fetchRentals()}
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Locality
+				<input
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={locality}
+					placeholder="e.g. t nagar"
+					oninput={() => debounceFetchRentals(true)}
+				/>
+			</label>
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Property Type
+				<select
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={propertyType}
+					onchange={() => void fetchRentals(true)}
 				>
-					{loadingMore ? 'Loading…' : 'Load more'}
-				</button>
+					<option value="">Any</option>
+					<option value="apartment">Apartment</option>
+					<option value="villa">Villa</option>
+					<option value="plot">Plot</option>
+					<option value="independent house">Independent House</option>
+					<option value="builder floor">Builder Floor</option>
+				</select>
+			</label>
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Bedrooms
+				<select
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={bedroom}
+					onchange={() => void fetchRentals(true)}
+				>
+					<option value="">Any bedrooms</option>
+					<option value="0">Studio</option>
+					<option value="1">1 BHK</option>
+					<option value="2">2 BHK</option>
+					<option value="3">3 BHK</option>
+					<option value="4">4 BHK</option>
+					<option value="5">5 BHK</option>
+				</select>
+			</label>
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Furnishing
+				<select
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={furnishing}
+					onchange={() => void fetchRentals(true)}
+				>
+					<option value="">Any furnishing</option>
+					<option value="unfurnished">Unfurnished</option>
+					<option value="semi-furnished">Semi-furnished</option>
+					<option value="fully-furnished">Fully-furnished</option>
+				</select>
+			</label>
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Min rent
+				<input
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={minPrice}
+					type="number"
+					min="0"
+					placeholder="₹/month"
+					oninput={() => debounceFetchRentals(true)}
+				/>
+			</label>
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Max rent
+				<input
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={maxPrice}
+					type="number"
+					min="0"
+					placeholder="₹/month"
+					oninput={() => debounceFetchRentals(true)}
+				/>
+			</label>
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Sort by
+				<select
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={sortBy}
+					onchange={() => void fetchRentals(true)}
+				>
+					<option value="">Default</option>
+					<option value="price">Rent</option>
+					<option value="carpet_area">Carpet Area</option>
+					<option value="posted_at">Posted At</option>
+					<option value="bedroom">Bedroom</option>
+				</select>
+			</label>
+			<label class="grid gap-1.5 text-xs font-bold text-[#526058]">
+				Order
+				<select
+					class="box-border w-full rounded-[.55rem] border border-[#d8d5cc] bg-white p-2.5 font-inherit"
+					bind:value={order}
+					onchange={() => void fetchRentals(true)}
+				>
+					<option value="asc">Ascending</option>
+					<option value="desc">Descending</option>
+				</select>
+			</label>
+			<label class="flex items-center gap-1.5 text-xs font-bold text-[#526058]">
+				<input type="checkbox" bind:checked={liveOnly} onchange={() => void fetchRentals(true)} />
+				Active only
+			</label>
+			<button
+				class="clear cursor-pointer rounded-[.55rem] border-0 bg-[#e8eee9] px-4 py-3 font-inherit font-extrabold text-[#1e5b3a]"
+				type="button"
+				onclick={resetFilters}>Clear</button
+			>
+		</aside>
+
+		<section class="min-w-0">
+			{#if error}
+				<p class="py-8 text-[#a3362d]" role="alert">{error}</p>
+			{:else if loading}
+				<p class="py-8 text-[#68746d]">Loading rentals…</p>
+			{:else}
+				{#if rentals.length === 0}
+					<p class="py-8 text-[#68746d]">No rentals match these filters.</p>
+				{:else}
+					<section
+						class="grid grid-cols-3 gap-4 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1"
+						aria-label="Rentals"
+					>
+						{#each rentals as rental (rental.listing_id)}
+							<a
+								class="grid gap-2.5 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]"
+								href={resolve(`/rentals/${rental.listing_id}`)}
+							>
+								<div class="flex justify-between text-xs font-extrabold text-[#557762]">
+									<span class="tag rounded-md bg-[#e8eee9] px-2 py-1">{rental.bedroom} BHK</span>
+									<span class={rental.is_live ? 'text-[#557762]' : 'text-[#a3362d]'}
+										>{rental.is_live ? 'Live' : 'Inactive'}</span
+									>
+								</div>
+								<h2 class="m-0 mt-2 text-xl">{rental.apartment_name}</h2>
+								<p class="m-0 text-sm text-[#68746d]">{rental.locality} · {rental.property_type}</p>
+								<strong class="mt-1 text-[1.35rem]"
+									>₹{rental.price.toLocaleString('en-IN')}/month</strong
+								>
+								<p class="m-0 text-sm text-[#68746d]">
+									Deposit ₹{rental.deposit.toLocaleString('en-IN')} · {rental.carpet_area.toLocaleString()}
+									sq ft · {rental.furnishing}
+								</p>
+							</a>
+						{/each}
+					</section>
+					{#if hasMore}
+						<button
+							class="load-more mx-auto mt-8 block cursor-pointer rounded-[.55rem] border-0 bg-[#1e5b3a] px-4 py-3 font-inherit font-extrabold text-white"
+							type="button"
+							disabled={loadingMore}
+							onclick={() => void fetchRentals()}
+						>
+							{loadingMore ? 'Loading…' : 'Load more'}
+						</button>
+					{/if}
+				{/if}
 			{/if}
-		{/if}
-	{/if}
+		</section>
+	</div>
 </main>
