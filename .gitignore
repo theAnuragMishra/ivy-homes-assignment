@@ -12,3 +12,5 @@ wheels/
 # Local credentials and downloaded API data
 **/.env
 **/data/
+
+.DS_Store
