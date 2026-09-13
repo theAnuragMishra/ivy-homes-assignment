@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import logo from '../../assets/logo.svg';
 	
 
 	let email = $state('demo1@ivy.homes');
@@ -45,7 +46,7 @@
 	<section
 		class="w-full max-w-md rounded-[1.25rem] border border-[#e5e0d7] bg-white p-10 shadow-[0_1rem_3rem_#25352a12]"
 	>
-		<p class="mb-5 text-xs font-extrabold tracking-[.16em] text-[#557762]">IVY HOMES</p>
+		<img class="mb-5 h-6 w-auto" src={logo} alt="Ivy Homes" />
 		<h1 class="m-0 text-[clamp(2rem,6vw,3.25rem)] leading-[.98] tracking-[-.06em]">
 			Find a place that fits.
 		</h1>

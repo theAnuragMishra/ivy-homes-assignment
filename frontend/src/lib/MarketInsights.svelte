@@ -45,12 +45,10 @@
 <main
 	class="mx-auto w-[min(76rem,calc(100%-3rem))] py-8 pb-20 max-[900px]:w-[calc(100%-3rem)] max-[560px]:w-[calc(100%-2rem)]"
 >
-	<a class="font-bold text-[#1e5b3a] no-underline" href={resolve('/')}>← Workspace</a>
-
 	<header class="my-16 flex items-end justify-between gap-10 max-[700px]:my-12 max-[700px]:block">
 		<div class="max-w-3xl">
 			<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">
-				THE IVY HOMES MARKET
+				THE PROPERTY MARKET
 			</p>
 			<h1 class="m-0 text-[clamp(2.8rem,7vw,6rem)] leading-[.9] tracking-[-.07em]">
 				A clearer view of your next move.

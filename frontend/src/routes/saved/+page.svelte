@@ -36,7 +36,6 @@
 </svelte:head>
 
 <main class="mx-auto w-[min(76rem,calc(100%-3rem))] py-8 pb-16 max-[560px]:w-[calc(100%-2rem)]">
-	<a class="mb-8 block text-sm font-bold text-[#1e5b3a] no-underline" href={resolve('/listings')}>← Back to listings</a>
 	<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">SAVED LISTINGS</p>
 	<h1 class="m-0 mb-6 text-[clamp(2.3rem,6vw,4.5rem)] leading-[.95] tracking-[-.06em]">Your shortlist.</h1>
 	

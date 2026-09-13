@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
+	import MarketInsights from '$lib/MarketInsights.svelte';
 
 	let authenticated = $state(false);
 	let loading = $state(true);
@@ -37,18 +38,10 @@
 	<main class="grid min-h-screen place-items-center text-[#68746d]">Loading your workspace…</main>
 {:else if authenticated}
 	<main class="mx-auto w-[min(72rem,calc(100%-3rem))] py-12 max-[520px]:w-[calc(100%-2rem)] max-[520px]:py-6">
-		<header class="flex items-start justify-between gap-8 max-[520px]:items-center">
+		<header>
 			<div>
-				<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">IVY HOMES</p>
-				<h1 class="m-0 max-w-[38rem] text-[clamp(2.4rem,7vw,5rem)] leading-none tracking-[-.05em]">Your property workspace</h1>
+			<h1 class="m-0 max-w-[38rem] text-[clamp(2.4rem,7vw,5rem)] leading-none tracking-[-.05em]">Your property workspace</h1>
 			</div>
-			<button
-				class="cursor-pointer rounded-[.6rem] border border-[#c9c6bd] bg-transparent px-4 py-3 font-bold text-[#1e2924]"
-				onclick={async () => {
-					await fetch('/api/auth/logout', { method: 'POST' });
-					await goto(resolve('/login'));
-				}}>Sign out</button
-			>
 		</header>
 		<section class="my-28 mb-12 max-w-2xl max-[520px]:mt-20">
 			<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">RESEARCH-BACKED BROWSING</p>
@@ -59,7 +52,7 @@
 			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href={resolve("/listings")}><strong>Browse listings</strong><span class="text-sm leading-relaxed text-[#68746d]">Filter and compare sale properties.</span></a>
 			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href="/rentals"><strong>Explore rentals</strong><span class="text-sm leading-relaxed text-[#68746d]">See monthly rent and locality options.</span></a>
 			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href="/projects"><strong>View projects</strong><span class="text-sm leading-relaxed text-[#68746d]">Browse developer projects and pricing.</span></a>
-			<a class="grid min-h-32 gap-3 rounded-2xl border border-[#e1ddd4] bg-white p-5 text-inherit no-underline transition hover:-translate-y-0.5 hover:border-[#8bb699]" href="/insights"><strong>Open insights</strong><span class="text-sm leading-relaxed text-[#68746d]">Understand the data behind the listings.</span></a>
 		</nav>
+		<MarketInsights />
 	</main>
 {/if}

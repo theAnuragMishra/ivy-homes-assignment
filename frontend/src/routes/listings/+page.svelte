@@ -137,9 +137,6 @@
 		class="mb-10 flex items-end justify-between gap-8 max-[560px]:flex-col max-[560px]:items-start"
 	>
 		<div>
-			<a class="mb-8 block text-sm font-bold text-[#1e5b3a] no-underline" href={resolve('/')}
-				>← Workspace</a
-			>
 			<p class="mb-3 text-xs font-extrabold tracking-[.16em] text-[#557762]">SALE LISTINGS</p>
 			<h1 class="m-0 text-[clamp(2.3rem,6vw,4.5rem)] leading-[.95] tracking-[-.06em]">
 				Find your next place.
