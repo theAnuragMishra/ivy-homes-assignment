@@ -1,0 +1,323 @@
+{
+  "api_key": "IVY26-XXXXXXXXXXXX",
+  "candidate": {
+    "name": "",
+    "email": "",
+    "repo_url": "",
+    "demo_url": ""
+  },
+  "answers": {
+    "total_listing_records": 4100,
+    "unique_properties": 3993,
+    "active_listings": 3233,
+    "corrupt_listing_ids": [
+      "100-4000397",
+      "100-4000449",
+      "100-4000457",
+      "100-4000491",
+      "100-4000738",
+      "100-4001530",
+      "100-4001703",
+      "100-4002832",
+      "100-4002961",
+      "DWE-4000236",
+      "DWE-4000412",
+      "DWE-4000824",
+      "DWE-4000891",
+      "DWE-4001368",
+      "DWE-4001424",
+      "DWE-4001442",
+      "DWE-4002045",
+      "DWE-4002247",
+      "DWE-4002374",
+      "DWE-4002712",
+      "DWE-4002806",
+      "DWE-4003067",
+      "MAG-4000145",
+      "MAG-4000283",
+      "MAG-4000883",
+      "MAG-4001981",
+      "MAG-4002491",
+      "MAG-4002776",
+      "MAG-4003100",
+      "SQU-4000224",
+      "SQU-4000308",
+      "SQU-4000459",
+      "SQU-4000583",
+      "SQU-4001225",
+      "SQU-4001601",
+      "SQU-4002483",
+      "ZER-4000021",
+      "ZER-4000995",
+      "ZER-4001161",
+      "ZER-4001287",
+      "ZER-4001669",
+      "ZER-4001686",
+      "ZER-4001726",
+      "ZER-4001844",
+      "ZER-4002352"
+    ],
+    "total_monthly_rent": 5853000,
+    "avg_price_per_sqft_2bhk": 16095.28,
+    "costliest_project": {
+      "project_id": "P40451",
+      "price_max_inr": 35600000
+    },
+    "listings_last_7_days": 122,
+    "fake_listing_ids": [
+      "100-4001484",
+      "100-4001961",
+      "DWE-4000745",
+      "MAG-4000075",
+      "MAG-4000870",
+      "MAG-4001467",
+      "MAG-4002092",
+      "SQU-4001342",
+      "ZER-4002683"
+    ],
+    "projects_with_wrong_listing_count": 119
+  },
+  "findings": [
+    {
+      "endpoint": "*",
+      "category": "auth",
+      "documented": "The API key is supplied as the api_key query parameter, and protected requests use the documented token.",
+      "actual": "The live API requires X-API-Key and a Bearer access token. Login returns access_token and refresh_token.",
+      "how_found": "Sent the key using the documented query parameter which obviously did not work. The response indicated the correct headers.",
+      "impact": "Clients following the documented authentication flow cannot authenticate.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/auth/login",
+      "category": "auth",
+      "documented": "Login returns token and expires_in: 86400, with a full demo-user object.",
+      "actual": "Login returns access_token, refresh_token, refresh_url, token_type Bearer, expires_in 900, and a user object containing the email.",
+      "how_found": "Called the login endpoint and recorded the response.",
+      "impact": "A frontend relying on documented behavior will not be able to authenticate or maintain a session.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/auth/refresh",
+      "category": "undocumented_endpoint",
+      "documented": "There is no refresh flow.",
+      "actual": "POST /auth/refresh accepts refresh_token and returns a refreshed access-token response.",
+      "how_found": "Called the refresh_url returned by login with the refresh token.",
+      "impact": "Clients have no idea of how to refresh their access tokens and will be forced to re-login every 15 minutes.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/auth/logout",
+      "category": "auth",
+      "documented": "Logout invalidates the current token server side.",
+      "actual": "Logout returns ok true but says tokens are stateless. The token remains usable and must be discarded client side.",
+      "how_found": "Called logout and then used the same access token for another protected request.",
+      "impact": "Logout implementations must clear local cookies or storage; the API does not revoke the token.",
+      "evidence": []
+    },
+    {
+      "endpoint": "*",
+      "category": "pagination",
+      "documented": "Collections use page and limit, with a maximum limit of 200.",
+      "actual": "Collections use offset and limit. A requested limit of 200 is capped at 50, and responses include count, total, has_more, results, limit, and offset.",
+      "how_found": "Requested multiple collection pages and compared returned pagination metadata with the requested parameters.",
+      "impact": "Clients must advance offset using the returned batch and has_more instead of requesting page numbers.",
+      "evidence": []
+    },
+    {
+      "endpoint": "*",
+      "category": "pagination",
+      "documented": "total is exact and can be used to calculate all pages.",
+      "actual": "Complete traversal using has_more produced counts that can disagree with the reported total.",
+      "how_found": "Downloaded each collection to the end by following has_more and compared the resulting count with total.",
+      "impact": "Clients can not rely on total to calculate the number of pages, they must traverse the collection to the end.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "completeness",
+      "documented": "The endpoint returns only active listings.",
+      "actual": "The endpoint returns both live and inactive records, is_live must be checked by the client.",
+      "how_found": "Retrieved all listing records and inspected their is_live values.",
+      "impact": "The frontend must not assume every returned listing is active.",
+      "evidence": [
+        "100-4000397",
+        "DWE-4000236",
+        "MAG-4000145",
+        "SQU-4000224",
+        "ZER-4000021"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "filters",
+      "documented": "furnishing, is_live, and project_id query parameters filter listings.",
+      "actual": "Those parameters were accepted but returned the same result totals and first records as the unfiltered request.",
+      "how_found": "Compared requests with each parameter against an otherwise identical unfiltered request.",
+      "impact": "The frontend must apply these filters locally.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listing/{id}",
+      "category": "missing_endpoint",
+      "documented": "A listing detail is available at the singular /v1/listing/{listing_id} path.",
+      "actual": "The singular path returns 404.",
+      "how_found": "Requested the documented route with a real listing ID.",
+      "impact": "Clients must use the plural detail route.",
+      "evidence": [
+        "MAG-4001518"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings/{id}",
+      "category": "undocumented_endpoint",
+      "documented": "No plural listing detail route is documented.",
+      "actual": "GET /v1/listings/{listing_id} returns the listing detail object.",
+      "how_found": "Retried the documented detail request using the plural collection path.",
+      "impact": "This is the working route for listing detail pages.",
+      "evidence": [
+        "MAG-4001518"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings/{id}/similar",
+      "category": "missing_endpoint",
+      "documented": "The endpoint returns up to ten similar listings.",
+      "actual": "The route returns 404.",
+      "how_found": "Requested the documented similar-listings route with a real listing ID.",
+      "impact": "A similar-listings component must be derived locally or omitted.",
+      "evidence": [
+        "MAG-4001518"
+      ]
+    },
+    {
+      "endpoint": "/v1/favourites",
+      "category": "missing_endpoint",
+      "documented": "Saved listings use GET, POST, and DELETE /v1/favourites routes.",
+      "actual": "The documented favourites routes return 404.",
+      "how_found": "Tested the documented saved-listing lifecycle.",
+      "impact": "Clients must use the live /v1/saved routes.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/saved",
+      "category": "undocumented_endpoint",
+      "documented": "No /v1/saved route is documented.",
+      "actual": "GET and POST /v1/saved work; POST accepts listing_id.",
+      "how_found": "Tested list and save operations with a real listing, then removed the test save.",
+      "impact": "This is the working saved-listing API.",
+      "evidence": [
+        "MAG-4001518"
+      ]
+    },
+    {
+      "endpoint": "/v1/saved/{id}",
+      "category": "undocumented_endpoint",
+      "documented": "No live delete route is documented under /v1/saved.",
+      "actual": "DELETE /v1/saved/{listing_id} removes a saved listing.",
+      "how_found": "Completed the save, list, and delete lifecycle.",
+      "impact": "The frontend can implement persistent per-user saved listings.",
+      "evidence": [
+        "MAG-4001518"
+      ]
+    },
+    {
+      "endpoint": "/v1/analytics/summary",
+      "category": "missing_endpoint",
+      "documented": "The endpoint returns pre-computed city analytics.",
+      "actual": "The endpoint returns 404.",
+      "how_found": "Requested the documented analytics route after authentication.",
+      "impact": "Insights must be calculated from retrieved collections.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/projects",
+      "category": "units",
+      "documented": "price_min and price_max are integer rupee values.",
+      "actual": "Project prices are decimal values with mixed lakh/crore encoding; for example P40001 has price_min 66.1 and price_max 1.95.",
+      "how_found": "Inspected all downloaded project prices and tested the unit hypothesis against impossible price_min > price_max pairs.",
+      "impact": "Project prices must be normalized before display and costliest-project calculations.",
+      "evidence": [
+        "P40001",
+        "P40451"
+      ]
+    },
+    {
+      "endpoint": "/v1/projects",
+      "category": "consistency",
+      "documented": "total_listings always agrees with currently available listings.",
+      "actual": "119 projects have total_listings values different from the count of retrieved live listings linked to the project.",
+      "how_found": "Compared each project's total_listings with grouped live listing records.",
+      "impact": "Project listing counts should be labeled as API-reported values or reconciled client side.",
+      "evidence": [
+        "P40014",
+        "P40015",
+        "P40018",
+        "P40019",
+        "P40025",
+        "P40027",
+        "P40028",
+        "P40031",
+        "P40033",
+        "P40036",
+        "P40039",
+        "P40041",
+        "P40042",
+        "P40045",
+        "P40046",
+        "P40052",
+        "P40055",
+        "P40063",
+        "P40067"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings/{id}",
+      "category": "data_quality",
+      "documented": "Listing records describe ordinary real properties.",
+      "actual": "45 records contain structurally impossible values, including negative prices, invalid floor relationships, impossible bedroom/property combinations, inverted areas, or invalid coordinates.",
+      "how_found": "Tested record-level invariants across the complete listing download.",
+      "impact": "These records if displayed would mislead users and analysts. The server should validate and reject them, or the frontend should filter them out.",
+      "evidence": [
+        "100-4000397",
+        "100-4000449",
+        "100-4000457",
+        "100-4000491",
+        "100-4000738",
+        "100-4001530",
+        "100-4001703",
+        "100-4002832",
+        "100-4002961",
+        "DWE-4000236",
+        "DWE-4000412",
+        "DWE-4000824",
+        "DWE-4000891",
+        "DWE-4001368",
+        "DWE-4001424",
+        "DWE-4001442",
+        "DWE-4002045",
+        "DWE-4002247",
+        "DWE-4002374",
+        "DWE-4002712"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings/{id}",
+      "category": "fraud",
+      "documented": "Listing records are genuine property listings.",
+      "actual": "Nine positive-price records are strong fake-listing candidates because their prices are implausibly low for the dataset and they match the bait-listing pattern.",
+      "how_found": "Tested the low-price bait hypothesis against the complete listing dataset and reviewed the candidate records.",
+      "impact": "These records are excluded from the relevant average-price calculation and reported as fake candidates.",
+      "evidence": [
+        "100-4001484",
+        "100-4001961",
+        "DWE-4000745",
+        "MAG-4000075",
+        "MAG-4000870",
+        "MAG-4001467",
+        "MAG-4002092",
+        "SQU-4001342",
+        "ZER-4002683"
+      ]
+    }
+  ]
+}
