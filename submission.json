@@ -1,10 +1,10 @@
 {
-  "api_key": "IVY26-XXXXXXXXXXXX",
+  "api_key": "IVY26-B353CA979078",
   "candidate": {
-    "name": "",
-    "email": "",
-    "repo_url": "",
-    "demo_url": ""
+    "name": "Anurag Kumar Mishra",
+    "email": "anuragkrmishrag@gmail.com",
+    "repo_url": "https://github.com/theAnuragMishra/ivy-homes-assignment",
+    "demo_url": "https://ivy-homes.pages.dev"
   },
   "answers": {
     "total_listing_records": 4100,
