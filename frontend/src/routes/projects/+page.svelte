@@ -11,6 +11,7 @@
 	let error = $state('');
 	let hasMore = $state(false);
 	let offset = $state(0);
+	let scanOffset = $state(0);
 	let locality = $state('');
 	let developer = $state('');
 	let projectStatus = $state('');
@@ -32,11 +33,13 @@
 	let maxTowers = $state(towersMax);
 	let sortBy = $state('launch_date');
 	let order = $state('desc');
+	const pageSize = 30;
 
 	function buildQuery(startOffset: number) {
 		const params = new SvelteURLSearchParams({
-			limit: '24',
+			limit: String(pageSize),
 			offset: String(startOffset),
+			scan_offset: String(scanOffset),
 			sort_by: sortBy,
 			order
 		});
@@ -76,6 +79,7 @@
 			loading = true;
 			error = '';
 			offset = 0;
+			scanOffset = 0;
 		} else {
 			loadingMore = true;
 		}
@@ -94,7 +98,8 @@
 				return;
 			}
 			projects = reset ? payload.results : [...projects, ...payload.results];
-			offset = startOffset + payload.results.length;
+			offset = startOffset + pageSize;
+			scanOffset = payload.next_offset ?? offset;
 			hasMore = payload.has_more;
 		} catch (err) {
 			if (err instanceof DOMException && err.name === 'AbortError') return;

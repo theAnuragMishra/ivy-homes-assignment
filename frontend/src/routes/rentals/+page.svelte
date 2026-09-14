@@ -11,6 +11,7 @@
 	let error = $state('');
 	let hasMore = $state(false);
 	let offset = $state(0);
+	let scanOffset = $state(0);
 	let locality = $state('');
 	let bedroom = $state('');
 	let propertyType = $state('');
@@ -19,14 +20,16 @@
 	const rentMax = 500_000;
 	let minPrice = $state(rentMin);
 	let maxPrice = $state(rentMax);
-	let liveOnly = $state(true);
+	let liveOnly = $state(false);
 	let sortBy = $state('');
 	let order = $state('asc');
+	const pageSize = 30;
 
 	function buildQuery(startOffset: number) {
 		const params = new SvelteURLSearchParams({
-			limit: '30',
-			offset: String(startOffset)
+			limit: String(pageSize),
+			offset: String(startOffset),
+			scan_offset: String(scanOffset)
 		});
 		if (locality) params.set('locality', locality.trim().toLowerCase());
 		if (bedroom) params.set('bhk', bedroom);
@@ -62,6 +65,7 @@
 			loading = true;
 			error = '';
 			offset = 0;
+			scanOffset = 0;
 		} else {
 			loadingMore = true;
 		}
@@ -80,7 +84,8 @@
 				return;
 			}
 			rentals = reset ? payload.results : [...rentals, ...payload.results];
-			offset = startOffset + payload.results.length;
+			offset = startOffset + pageSize;
+			scanOffset = payload.next_offset ?? offset;
 			hasMore = payload.has_more;
 		} catch (err) {
 			if (err instanceof DOMException && err.name === 'AbortError') return;
@@ -100,7 +105,7 @@
 		furnishing = '';
 		minPrice = rentMin;
 		maxPrice = rentMax;
-		liveOnly = true;
+		liveOnly = false;
 		sortBy = '';
 		order = 'asc';
 		void fetchRentals(true);

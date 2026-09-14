@@ -12,6 +12,7 @@
 	let error = $state('');
 	let hasMore = $state(false);
 	let offset = $state(0);
+	let scanOffset = $state(0);
 	let locality = $state('');
 	let bedroom = $state('');
 	let furnishing = $state('');
@@ -19,15 +20,17 @@
 	const priceMax = 100_000_000;
 	let minPrice = $state(priceMin);
 	let maxPrice = $state(priceMax);
-	let liveOnly = $state(true);
+	let liveOnly = $state(false);
 	let propertyType = $state('');
 	let sortBy = $state('');
 	let order = $state('asc');
+	const pageSize = 30;
 
 	function buildQuery(startOffset: number) {
 		const params = new SvelteURLSearchParams({
-			limit: '30',
-			offset: String(startOffset)
+			limit: String(pageSize),
+			offset: String(startOffset),
+			scan_offset: String(scanOffset)
 		});
 		if (locality) params.set('locality', locality.trim().toLowerCase());
 		if (bedroom) params.set('bhk', bedroom);
@@ -53,8 +56,6 @@
 	}
 
 	async function fetchListings(reset = false) {
-		console.log('fetching');
-
 		if (reset) {
 			searchController?.abort();
 			searchController = new AbortController();
@@ -66,6 +67,7 @@
 			loading = true;
 			error = '';
 			offset = 0;
+			scanOffset = 0;
 		} else {
 			loadingMore = true;
 		}
@@ -89,7 +91,8 @@
 
 			listings = reset ? payload.results : [...listings, ...payload.results];
 
-			offset = startOffset + payload.results.length;
+			offset = startOffset + pageSize;
+			scanOffset = payload.next_offset ?? offset;
 			hasMore = payload.has_more;
 			// total = payload.total;
 		} catch (err) {
@@ -115,7 +118,7 @@
 		furnishing = '';
 		minPrice = priceMin;
 		maxPrice = priceMax;
-		liveOnly = true;
+		liveOnly = false;
 		void fetchListings(true);
 	}
 

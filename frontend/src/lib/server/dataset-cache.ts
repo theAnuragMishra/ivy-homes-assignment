@@ -1,76 +1,68 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import { authenticatedRequest, ensureAuthenticated } from '$lib/server/authenticated-api';
 
-const CACHE_TTL_MS = 5 * 60 * 1000;
+export const UPSTREAM_PAGE_SIZE = 30;
 
-type CacheEntry<T> = {
-	data: T[];
-	fetchedAt: number;
-	promise: Promise<T[]> | null;
+export type UpstreamCollection<T> = {
+	results: T[];
+	has_more: boolean;
+	total?: number;
 };
 
-const caches = new Map<string, CacheEntry<unknown>>();
-
-async function fetchAll<T>(
+export async function fetchCollectionPage<T>(
 	event: Pick<RequestEvent, 'fetch' | 'cookies'>,
-	path: string
+	path: string,
+	params: Record<string, string | number | undefined>,
+	offset: number,
+	limit = UPSTREAM_PAGE_SIZE
+): Promise<UpstreamCollection<T>> {
+	await ensureAuthenticated(event);
+	const search = new URLSearchParams();
+	for (const [key, value] of Object.entries(params)) {
+		if (value !== undefined && value !== '') search.set(key, String(value));
+	}
+	search.set('limit', String(limit));
+	search.set('offset', String(offset));
+	return authenticatedRequest<UpstreamCollection<T>>(event, `${path}?${search}`);
+}
+
+export async function fetchUntilMatches<T>(
+	event: Pick<RequestEvent, 'fetch' | 'cookies'>,
+	path: string,
+	params: Record<string, string | number | undefined>,
+	targetCount: number,
+	matches: (records: T[]) => T[],
+	startOffset = 0
+): Promise<{ records: T[]; hasMore: boolean; nextOffset: number }> {
+	const records: T[] = [];
+	let offset = startOffset;
+	let hasMore = true;
+
+	while (hasMore && matches(records).length < targetCount) {
+		const page = await fetchCollectionPage<T>(event, path, params, offset);
+		records.push(...page.results);
+		hasMore = page.has_more && page.results.length > 0;
+		offset += page.results.length;
+	}
+
+	return { records, hasMore, nextOffset: offset };
+}
+
+// Aggregate views are the one consumer that intentionally needs the complete
+// collection; browse routes use fetchUntilMatches instead.
+export async function getFullCollection<T>(
+	event: Pick<RequestEvent, 'fetch' | 'cookies'>,
+	path: string,
+	params: Record<string, string | number | undefined> = {}
 ): Promise<T[]> {
 	const records: T[] = [];
 	let offset = 0;
-	// The server caps limit at 50 no matter what we ask for, so request 50
-	// directly and advance by the actual batch size, stopping on has_more.
-	for (;;) {
-		const batch = await authenticatedRequest<{
-			results: T[];
-			has_more: boolean;
-		}>(event, `${path}?limit=50&offset=${offset}`);
-		records.push(...batch.results);
-		if (!batch.has_more || batch.results.length === 0) break;
-		offset += batch.results.length;
+	let hasMore = true;
+	while (hasMore) {
+		const page = await fetchCollectionPage<T>(event, path, params, offset);
+		records.push(...page.results);
+		hasMore = page.has_more && page.results.length > 0;
+		offset += page.results.length;
 	}
 	return records;
-}
-
-/**
- * Returns the full, cached collection for `path` (e.g. "/v1/listings"),
- * fetching and caching it on first use per server process. Concurrent
- * callers during a cold/expired cache share a single in-flight fetch.
- */
-export async function getFullCollection<T>(
-	event: Pick<RequestEvent, 'fetch' | 'cookies'>,
-	path: string
-): Promise<T[]> {
-	// A warm cache would otherwise skip the auth check that a live upstream
-	// request performs on every call, so check the caller's own session
-	// explicitly regardless of cache state.
-	await ensureAuthenticated(event);
-
-	const existing = caches.get(path) as CacheEntry<T> | undefined;
-	const now = Date.now();
-
-	if (existing && now - existing.fetchedAt < CACHE_TTL_MS) {
-		return existing.data;
-	}
-	if (existing?.promise) {
-		return existing.promise;
-	}
-
-	const promise = fetchAll<T>(event, path);
-	caches.set(path, {
-		data: existing?.data ?? [],
-		fetchedAt: existing?.fetchedAt ?? 0,
-		promise
-	});
-
-	try {
-		const data = await promise;
-		caches.set(path, { data, fetchedAt: Date.now(), promise: null });
-		return data;
-	} catch (error) {
-		// Restore the previous good cache (if any) so a transient upstream
-		// error doesn't wipe out a working cache; otherwise let it clear so
-		// the next request can retry against a cold cache.
-		caches.set(path, { data: existing?.data ?? [], fetchedAt: existing?.fetchedAt ?? 0, promise: null });
-		throw error;
-	}
 }
