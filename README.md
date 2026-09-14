@@ -75,8 +75,24 @@ Several documented routes were missing or had different live equivalents:
 
 ### Filters
 
-Some listing query parameters are accepted but silently ignored by the API,
-including furnishing and minimum/maximum price. To correctly implement these filters client-side the frontend would either need full dataset beforehand or compromise with some valid listings that were not fetched by the current `limit` and `offset` being excluded. I chose the latter option for correctness. The frontend downloads the complete cached collection and applies these filters locally before sorting and pagination. Note that this does make the frontend slow on first load.
+Some query parameters are accepted but silently ignored by the API, including
+furnishing and minimum/maximum price on listings. The browse endpoints therefore
+split filters into two groups: verified upstream filters are forwarded, while
+unsupported filters are evaluated by the SvelteKit server.
+
+The browser starts with the first upstream page and incrementally scans more
+pages only when it needs additional records to fill the requested result
+offset. The browser receives only the requested page. This keeps the initial
+request small while still allowing filters such as price ranges to work beyond
+the first 50 upstream records. The market-insights endpoint is separate because
+its aggregate cards genuinely require complete collections.
+
+This incremental strategy is deliberately request-scoped: when an unsupported
+filter is applied, the server scans from the beginning until it has enough
+matching records for the requested page or the upstream collection is
+exhausted. It does not claim that an arbitrary ignored filter can be globally
+ordered without scanning the entire source; that would require an upstream
+filter or a persistent indexed copy of the data.
 
 ### Sorting
 
