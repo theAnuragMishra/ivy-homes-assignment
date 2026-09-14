@@ -152,7 +152,7 @@
       "category": "filters",
       "documented": "furnishing, is_live, and project_id are documented query parameters; min_price and max_price are documented as inclusive rupee filters.",
       "actual": "All five parameters are accepted (no error) but ignored: requests with furnishing=fully-furnished, is_live=false, project_id=<id>, or min_price/max_price set all returned the exact same records, in the same order, as an unfiltered request -- including records priced outside the requested min_price/max_price range.",
-      "how_found": "Ran matched pairs of filtered vs. unfiltered requests against /v1/listings and compared both the reported total and the actual field values of every returned record.",
+      "how_found": "Ran matched pairs of filtered vs. unfiltered requests against /v1/listings and compared the actual field values of every returned record.",
       "impact": "A frontend must apply furnishing, is_live, project_id, min_price, and max_price filtering locally after fetching, not rely on the server to filter.",
       "evidence": [
         "MAG-4001518",
@@ -367,6 +367,44 @@
         "MAG-4002092",
         "SQU-4001342",
         "ZER-4002683"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "sorting",
+      "documented": "\"posted_at\" is a sort_by option and the API respects this parameter.",
+      "actual": "There is no consistent sorting based on \"posted_at\".",
+      "how_found": "Requested /v1/listings?sort_by=posted_at&limit=50&offset=0&order=asc with sort_by=posted_at and inspected the returned records' posted_at values; they were not in chronological order. For example, SQU-4003146 (posted_at 2026-01-13T20:39:00) appears before ZER-4002522 (posted_at 2026-01-13T17:34:00).",
+      "impact": "The frontend cannot rely on the server to sort by posted_at; it must sort locally after fetching.",
+      "evidence": [
+        "SQU-4003146",
+        "ZER-4002522"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "sorting",
+      "documented": "\"carpet_area\" is a sort_by option and the API respects this parameter.",
+      "actual": "Some malformed records have carpet_area values that are 10x smaller than the rest of the dataset (see units finding above), and these records sort as if they are the smallest carpet_area in the dataset, even though they are actually larger when converted to square feet.",
+      "how_found": "Requested /v1/listings?sort_by=carpet_area&limit=50&offset=0&order=asc with sort_by=carpet_area and inspected the returned records' carpet_area values; they were not in the expected order. For example, 100-4003374 (carpet_area 366) appears before MAG-4002620 (carpet_area 34). BUT BUT here's the catch, 34 square meters is roughly equal to 366 square feet. If we consider that correction, then the sorting works.",
+      "impact": "The frontend cannot rely on the server to sort by carpet_area; it must convert the values to the same unit and sort locally after fetching.",
+      "evidence": [
+        "100-4003374",
+        "MAG-4002620"
+      ]
+    },
+    {
+      "endpoint": "/v1/projects",
+      "category": "sorting",
+      "documented": "\"price_max\" and \"price_min\" are sort_by options and the API respects these parameters.",
+      "actual": "The price_max and price_min fields are encoded in two different units (lakhs and crores) depending on the value, and the server does not normalize them when sorting. As a result, projects with price_max in lakhs will appear to be cheaper than those in crores, even though they are actually more expensive when converted to the same unit.",
+      "how_found": "Requested /v1/projects?sort_by=price_max&limit=50&offset=0&order=asc with sort_by=price_max and inspected the returned records' price_max values; they were not in the expected order. For example, P40231 (price_max 99.8) appears before P40160 (price_max 1.01) and P40381 (price_min 99.9) appears before P40010 (price_min 1.01). But again, if we consider correct units, 1.01 crore is more than 99.9 lakhs. So the sorting is correct after conversion.",
+      "impact": "The frontend cannot rely on the server to sort by price_max; it must convert the values to the same unit and sort locally after fetching.",
+      "evidence": [
+        "P40231",
+        "P40160",
+        "P40381",
+        "P40010"
       ]
     }
   ]
