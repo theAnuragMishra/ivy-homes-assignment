@@ -104,7 +104,7 @@
 
 						{#if listing.is_live}
 							<span
-								class="inline-flex items-center rounded-full bg-[#edf5ed] px-2.5 py-1 text-xs font-extrabold text-[#327144]"
+								class="inline-flex items-center rounded-full bg-[#edf5ed] py-1 text-xs font-extrabold text-[#327144]"
 								>● Live</span
 							>
 						{/if}
