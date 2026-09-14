@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import type { MarketInsight } from '$lib/server/market-insights';
+	import { calculateMarketInsights, type Listing, type MarketInsight, type Project, type Rental } from '$lib/market-insights';
 
 	let data = $state<MarketInsight | null>(null);
 	let loading = $state(true);
 	let error = $state('');
+	let progress = $state('Starting…');
 
 	const money = (value: number) =>
 		value >= 10_000_000
@@ -17,17 +18,31 @@
 	const width = (value: number, max: number) => `${max ? Math.max(5, (value / max) * 100) : 5}%`;
 	const titleCase = (value: string) => value.replace(/\b\w/g, (letter) => letter.toUpperCase());
 
+	async function collect<T>(dataset: string, label: string): Promise<T[]> {
+		const records: T[] = [];
+		let offset = 0;
+		let hasMore = true;
+		while (hasMore) {
+			progress = `Crunching data — loading ${label} (${records.length.toLocaleString('en-IN')} collected)…`;
+			const response = await fetch(`/api/market-insights?dataset=${dataset}&offset=${offset}`);
+			const payload = await response.json();
+			if (!response.ok) throw new Error(payload.detail ?? `Unable to load ${label}.`);
+			records.push(...payload.results);
+			hasMore = payload.has_more && payload.results.length > 0;
+			offset += payload.results.length;
+		}
+		return records;
+	}
+
 	onMount(async () => {
 		try {
-			const response = await fetch('/api/market-insights');
-			const payload = await response.json();
-			if (!response.ok) {
-				error = payload.detail ?? 'Unable to load market insights.';
-				return;
-			}
-			data = payload as MarketInsight;
-		} catch {
-			error = 'Unable to reach the application server.';
+			const listings = await collect<Listing>('listings', 'sale listings');
+			const rentals = await collect<Rental>('rentals', 'rentals');
+			const projects = await collect<Project>('projects', 'projects');
+			progress = 'Crunching data — calculating market insights…';
+			data = calculateMarketInsights(listings, rentals, projects);
+		} catch (caught) {
+			error = caught instanceof Error ? caught.message : 'Unable to load market insights.';
 		} finally {
 			loading = false;
 		}
@@ -67,7 +82,7 @@
 	</header>
 
 	{#if loading}
-		<p class="py-12 text-[#68746d]">Preparing the market overview…</p>
+		<p class="py-12 text-[#68746d]">{progress}</p>
 	{:else if error}
 		<p class="py-12 text-[#a3362d]" role="alert">{error}</p>
 	{:else if data}
