@@ -2,7 +2,6 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import logo from '../../assets/logo.svg';
-	
 
 	let email = $state('demo1@ivy.homes');
 	let password = $state('');
@@ -50,9 +49,6 @@
 		<h1 class="m-0 text-[clamp(2rem,6vw,3.25rem)] leading-[.98] tracking-[-.06em]">
 			Find a place that fits.
 		</h1>
-		<p class="leading-relaxed text-[#68746d]">
-			Sign in with one of the demo accounts provided for your assignment.
-		</p>
 
 		<form
 			class="mt-8 grid gap-4"

@@ -77,9 +77,29 @@
 					<div class="mb-4 flex gap-2">
 						{#if listing.is_verified}
 							<span
-								class="inline-flex items-center rounded-full bg-[#e4f1e8] px-2.5 py-1 text-xs font-extrabold text-[#21643d]"
-								>✓ Verified</span
+								class="inline-flex items-center gap-1.5 rounded-full bg-[#e8f1ff] py-1 text-xs font-extrabold text-[#1d4ed8]"
+								title="This listing has been verified"
 							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									aria-hidden="true"
+									class="h-4 w-4 fill-current"
+								>
+									<path
+										d="M12 2.5 14.7 4l3.1-.1.9 3 2.3 2-1.1 2.9 1.1 2.9-2.3 2-.9 3-3.1-.1L12 21.5 9.3 20l-3.1.1-.9-3-2.3-2 1.1-2.9-1.1-2.9 2.3-2 .9-3 3.1.1L12 2.5Z"
+									/>
+									<path
+										d="m8.2 12.2 2.4 2.4 5.2-5.2"
+										fill="none"
+										stroke="white"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+									/>
+								</svg>
+								Verified listing
+							</span>
 						{/if}
 
 						{#if listing.is_live}

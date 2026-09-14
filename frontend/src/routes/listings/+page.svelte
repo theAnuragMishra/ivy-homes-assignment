@@ -210,7 +210,11 @@
 				step={100_000}
 				bind:lower={minPrice}
 				bind:upper={maxPrice}
-				format={(value) => {return value >= 10000000 ? `${(value / 10000000).toFixed(value === 0 ? 0 : 1)} Cr` : `₹${(value / 100000).toFixed(value === 0 ? 0 : 1)}L`}}
+				format={(value) => {
+					return value >= 10000000
+						? `${(value / 10000000).toFixed(value === 0 ? 0 : 1)} Cr`
+						: `₹${(value / 100000).toFixed(value === 0 ? 0 : 1)}L`;
+				}}
 				onChange={() => debounceFetchListings(true)}
 			/>
 
@@ -273,16 +277,45 @@
 									href={resolve(`/listings/${listing.listing_id}`)}
 								>
 									<div class="flex justify-between text-xs font-extrabold text-[#557762]">
-										<span class="tag rounded-md bg-[#e8eee9] px-2 py-1"
-											>{listing.bedroom > 0 ? `${listing.bedroom} BHK` : 'Plot'}</span
-										>
+										<div class="flex items-center gap-2">
+											<span class="tag rounded-md bg-[#e8eee9] px-2 py-1"
+												>{listing.bedroom > 0 ? `${listing.bedroom} BHK` : 'Plot'}</span
+											>
+											{#if listing.is_verified}
+												<span
+													class="inline-flex items-center gap-1 rounded-full bg-[#e8f1ff] px-2 py-1 text-[#1d4ed8]"
+													title="Verified listing"
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														viewBox="0 0 24 24"
+														aria-hidden="true"
+														class="h-3.5 w-3.5 fill-current"
+													>
+														<path
+															d="M12 2.5 14.7 4l3.1-.1.9 3 2.3 2-1.1 2.9 1.1 2.9-2.3 2-.9 3-3.1-.1L12 21.5 9.3 20l-3.1.1-.9-3-2.3-2 1.1-2.9-1.1-2.9 2.3-2 .9-3 3.1.1L12 2.5Z"
+														/>
+														<path
+															d="m8.2 12.2 2.4 2.4 5.2-5.2"
+															fill="none"
+															stroke="white"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+														/>
+													</svg>
+													<span class="sr-only">Verified</span>
+												</span>
+											{/if}
+										</div>
 										<span class={listing.is_live ? 'text-[#557762]' : 'text-[#a3362d]'}
 											>{listing.is_live ? 'Live' : 'Inactive'}</span
 										>
 									</div>
 									<h2 class="m-0 mt-2 text-xl">{listing.apartment_name}</h2>
 									<p class="m-0 text-sm text-[#68746d]">
-										{listing.locality} · <svg
+										{listing.locality} ·
+										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											width="1em"
 											height="1em"

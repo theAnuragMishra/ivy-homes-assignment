@@ -71,7 +71,7 @@
 				<div class="min-w-0">
 					<div class="mb-4 flex gap-2">
 						<span
-							class="inline-flex items-center rounded-full bg-[#e8eee9] px-2.5 py-1 text-xs font-extrabold capitalize text-[#2c7548]"
+							class="inline-flex items-center rounded-full bg-[#e8eee9] py-1 text-xs font-extrabold capitalize text-[#2c7548]"
 							>{project.project_status}</span
 						>
 					</div>
