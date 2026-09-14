@@ -57,8 +57,11 @@
 	<title>{listing ? `${listing.apartment_name} | Ivy Homes` : 'Listing | Ivy Homes'}</title>
 </svelte:head>
 
-<main class="mx-auto w-[min(72rem,calc(100%-3rem))] py-8 pb-20 max-[900px]:w-[calc(100%-3rem)] max-[650px]:w-[calc(100%-2rem)]">
-	<a class="font-bold text-[#1e5b3a] no-underline" href={resolve('/listings')}>← Back to listings</a>
+<main
+	class="mx-auto w-[min(72rem,calc(100%-3rem))] py-8 pb-20 max-[900px]:w-[calc(100%-3rem)] max-[650px]:w-[calc(100%-2rem)]"
+>
+	<a class="font-bold text-[#1e5b3a] no-underline" href={resolve('/listings')}>← Back to listings</a
+	>
 
 	{#if loading}
 		<p class="py-12 text-[#68746d]">Loading listing…</p>
@@ -67,15 +70,23 @@
 	{:else if listing}
 		<article>
 			<!-- Header -->
-			<header class="my-16 flex items-end justify-between gap-12 max-[650px]:my-12 max-[650px]:block">
+			<header
+				class="my-16 flex items-end justify-between gap-12 max-[650px]:my-12 max-[650px]:block"
+			>
 				<div class="min-w-0">
 					<div class="mb-4 flex gap-2">
 						{#if listing.is_verified}
-							<span class="inline-flex items-center rounded-full bg-[#e4f1e8] px-2.5 py-1 text-xs font-extrabold text-[#21643d]">✓ Verified</span>
+							<span
+								class="inline-flex items-center rounded-full bg-[#e4f1e8] px-2.5 py-1 text-xs font-extrabold text-[#21643d]"
+								>✓ Verified</span
+							>
 						{/if}
 
 						{#if listing.is_live}
-							<span class="inline-flex items-center rounded-full bg-[#edf5ed] px-2.5 py-1 text-xs font-extrabold text-[#327144]">● Live</span>
+							<span
+								class="inline-flex items-center rounded-full bg-[#edf5ed] px-2.5 py-1 text-xs font-extrabold text-[#327144]"
+								>● Live</span
+							>
 						{/if}
 					</div>
 
@@ -83,10 +94,32 @@
 						{listing.bedroom} BHK · {listing.property_type}
 					</p>
 
-					<h1 class="m-0 text-[clamp(2.5rem,7vw,5.5rem)] leading-[.92] tracking-[-.07em]">{listing.apartment_name}</h1>
+					<h1 class="m-0 text-[clamp(2.5rem,7vw,5.5rem)] leading-[.92] tracking-[-.07em]">
+						{listing.apartment_name}
+					</h1>
 
-					<p class="mt-4 flex gap-2 text-[#68746d]">
-						<span>⌖</span>
+					<p class="mt-4 flex items-center gap-1 text-[#68746d]">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="1em"
+							height="1em"
+							viewBox="0 0 24 24"
+							class="inline-block align-middle"
+						>
+							<path d="M0 0h24v24H0z" fill="none" />
+							<g
+								fill="none"
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+							>
+								<circle cx="12" cy="10" r="3" />
+								<path
+									d="M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8"
+								/>
+							</g>
+						</svg>
 						{listing.locality}
 						{#if listing.facing_direction}
 							<span class="text-[#b1b6b2]">·</span>
@@ -95,8 +128,12 @@
 					</p>
 				</div>
 
-				<div class="grid shrink-0 justify-items-end max-[650px]:mt-6 max-[650px]:justify-items-start">
-					<strong class="text-[clamp(1.8rem,4vw,2.75rem)] whitespace-nowrap">{formatPrice(listing.price)}</strong>
+				<div
+					class="grid shrink-0 justify-items-end max-[650px]:mt-6 max-[650px]:justify-items-start"
+				>
+					<strong class="text-[clamp(1.8rem,4vw,2.75rem)] whitespace-nowrap"
+						>{formatPrice(listing.price)}</strong
+					>
 
 					<span class="text-xs text-[#7a837e]">
 						₹{listing.price.toLocaleString('en-IN')}
@@ -108,15 +145,21 @@
 						type="button"
 						onclick={() => void toggleSaved(listing!.listing_id)}
 					>
-						{isSaved(listing.listing_id) ? '★ Saved' : '☆ Save listing'}
+						{isSaved(listing.listing_id) ? '★ Saved' : '☆ Save'}
 					</button>
 				</div>
 			</header>
 
 			<!-- Main property stats -->
-			<section class="grid grid-cols-6 overflow-hidden rounded-2xl border border-[#e1ddd4] bg-white max-[900px]:grid-cols-3 max-[650px]:grid-cols-2" aria-label="Property overview">
+			<section
+				class="grid grid-cols-6 overflow-hidden rounded-2xl border border-[#e1ddd4] bg-white max-[900px]:grid-cols-3 max-[650px]:grid-cols-2"
+				aria-label="Property overview"
+			>
 				<div class="flex items-center gap-3 border-r border-[#ebe8e1] p-4">
-					<span class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]">⌂</span>
+					<span
+						class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]"
+						>⌂</span
+					>
 					<div class="grid gap-1">
 						<strong>{listing.bedroom}</strong>
 						<span class="text-xs text-[#68746d]">Bedrooms</span>
@@ -124,7 +167,10 @@
 				</div>
 
 				<div class="flex items-center gap-3 border-r border-[#ebe8e1] p-4">
-					<span class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]">♨</span>
+					<span
+						class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]"
+						>♨</span
+					>
 					<div class="grid gap-1">
 						<strong>{listing.bathroom}</strong>
 						<span class="text-xs text-[#68746d]">Bathrooms</span>
@@ -132,7 +178,10 @@
 				</div>
 
 				<div class="flex items-center gap-3 border-r border-[#ebe8e1] p-4">
-					<span class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]">▣</span>
+					<span
+						class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]"
+						>▣</span
+					>
 					<div class="grid gap-1">
 						<strong>{formatNumber(listing.carpet_area)}</strong>
 						<span class="text-xs text-[#68746d]">sq ft carpet</span>
@@ -140,7 +189,10 @@
 				</div>
 
 				<div class="flex items-center gap-3 border-r border-[#ebe8e1] p-4">
-					<span class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]">□</span>
+					<span
+						class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]"
+						>□</span
+					>
 					<div class="grid gap-1">
 						<strong>{formatNumber(listing.super_built_up_area)}</strong>
 						<span class="text-xs text-[#68746d]">sq ft built-up</span>
@@ -148,7 +200,10 @@
 				</div>
 
 				<div class="flex items-center gap-3 border-r border-[#ebe8e1] p-4">
-					<span class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]">P</span>
+					<span
+						class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]"
+						>P</span
+					>
 					<div class="grid gap-1">
 						<strong>{listing.covered_parking}</strong>
 						<span class="text-xs text-[#68746d]">Covered parking</span>
@@ -156,7 +211,10 @@
 				</div>
 
 				<div class="flex items-center gap-3 p-4">
-					<span class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]">↑</span>
+					<span
+						class="grid h-8 w-8 place-items-center rounded-lg bg-[#f0f4f0] font-extrabold text-[#306746]"
+						>↑</span
+					>
 					<div class="grid gap-1">
 						<strong>{listing.floor} / {listing.total_floors}</strong>
 						<span class="text-xs text-[#68746d]">Floor</span>
@@ -165,7 +223,9 @@
 			</section>
 
 			<!-- Content -->
-			<div class="mt-6 grid grid-cols-[minmax(0,1.6fr)_minmax(18rem,.8fr)] items-start gap-6 max-[900px]:grid-cols-1">
+			<div
+				class="mt-6 grid grid-cols-[minmax(0,1.6fr)_minmax(18rem,.8fr)] items-start gap-6 max-[900px]:grid-cols-1"
+			>
 				<div class="grid gap-6">
 					<section class="rounded-2xl border border-[#e1ddd4] bg-white p-6">
 						<h2 class="mb-4 text-xl">About this property</h2>
@@ -249,7 +309,9 @@
 						</div>
 
 						{#if listing.latitude && listing.longitude}
-							<div class="mt-5 grid grid-cols-[auto_1fr] gap-2 border-t border-[#ebe8e1] pt-4 text-sm">
+							<div
+								class="mt-5 grid grid-cols-[auto_1fr] gap-2 border-t border-[#ebe8e1] pt-4 text-sm"
+							>
 								<span class="text-[#7a837e]">Latitude</span>
 								<strong>{listing.latitude}</strong>
 
@@ -263,7 +325,9 @@
 				<!-- Sidebar -->
 				<aside class="grid gap-6 max-[900px]:grid-cols-2 max-[650px]:grid-cols-1">
 					<section class="rounded-2xl border border-[#e1ddd4] bg-white p-6">
-						<div class="mb-2 text-[.68rem] font-extrabold tracking-[.12em] text-[#7a837e]">LISTED BY</div>
+						<div class="mb-2 text-[.68rem] font-extrabold tracking-[.12em] text-[#7a837e]">
+							LISTED BY
+						</div>
 
 						<h2 class="mb-1 text-xl">{listing.posted_by_name}</h2>
 
@@ -271,12 +335,20 @@
 							{listing.posted_by === 'agent' ? 'Property Agent' : listing.posted_by}
 						</p>
 
-						<a class="flex items-center gap-2 font-bold text-[#1e2924] no-underline" href={`tel:${listing.posted_by_contact}`}>
+						<a
+							class="flex items-center gap-2 font-bold text-[#1e2924] no-underline"
+							href={`tel:${listing.posted_by_contact}`}
+						>
 							<span>☎</span>
 							{listing.posted_by_contact}
 						</a>
 
-						<a class="mt-5 block rounded-lg bg-[#1e5b3a] p-3 text-center text-sm font-extrabold text-white no-underline hover:bg-[#17472d]" href={`tel:${listing.posted_by_contact}`}> Contact seller </a>
+						<a
+							class="mt-5 block rounded-lg bg-[#1e5b3a] p-3 text-center text-sm font-extrabold text-white no-underline hover:bg-[#17472d]"
+							href={`tel:${listing.posted_by_contact}`}
+						>
+							Contact seller
+						</a>
 					</section>
 
 					<section class="rounded-2xl border border-[#e1ddd4] bg-white p-6">
@@ -290,7 +362,9 @@
 
 							<div class="flex justify-between gap-4 border-t border-[#ebe8e1] py-3">
 								<span class="text-xs text-[#7a837e]">Posted</span>
-								<strong class="break-words text-right text-xs">{formatDate(listing.posted_at)}</strong>
+								<strong class="break-words text-right text-xs"
+									>{formatDate(listing.posted_at)}</strong
+								>
 							</div>
 
 							<div class="flex justify-between gap-4 border-t border-[#ebe8e1] py-3">
@@ -315,7 +389,12 @@
 					</section>
 
 					{#if listing.listing_url}
-						<a class="block rounded-xl border border-[#d8d5cc] bg-white p-4 text-center text-sm font-extrabold text-[#1e5b3a] no-underline hover:bg-[#f8f7f3]" rel="external noreferrer" href={listing.listing_url} target="_blank">
+						<a
+							class="block rounded-xl border border-[#d8d5cc] bg-white p-4 text-center text-sm font-extrabold text-[#1e5b3a] no-underline hover:bg-[#f8f7f3]"
+							rel="external noreferrer"
+							href={listing.listing_url}
+							target="_blank"
+						>
 							View original listing ↗
 						</a>
 					{/if}
@@ -323,4 +402,4 @@
 			</div>
 		</article>
 	{/if}
- </main>
+</main>
