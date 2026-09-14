@@ -144,23 +144,39 @@
 					</div>
 				</div>
 				<div>
-					<h3 class="mb-4 text-lg">Bedroom breakdown</h3>
-					<div class="grid gap-4">
-						{#each data.analytics.by_bhk as bedroom (bedroom.bedroom)}
-							<div>
-								<div class="mb-1 flex justify-between text-sm">
-									<span class="font-bold">{bedroom.bedroom === 0 ? 'Plots / studio' : `${bedroom.bedroom} BHK`}</span>
-									<span class="text-[#68746d]">{number(bedroom.count)}</span>
-								</div>
-								<div class="h-3 rounded-full bg-[#edf1ed]">
-									<div
-										class="h-3 rounded-full bg-[#6c82a7]"
-										style={`width: ${width(bedroom.count, Math.max(...data.analytics.by_bhk.map((b) => b.count)))}`}
-									></div>
-								</div>
+					<h3 class="mb-4 text-lg">Listing availability</h3>
+					<div class="grid gap-5">
+						<div>
+							<div class="mb-1 flex justify-between text-sm">
+								<span class="font-bold">Active listings</span>
+								<span class="text-[#68746d]">{number(data.overview.activeListings)}</span>
 							</div>
-						{/each}
+							<div class="h-3 rounded-full bg-[#edf1ed]">
+								<div
+									class="h-3 rounded-full bg-[#1e5b3a]"
+									style={`width: ${width(data.overview.activeListings, data.overview.totalListings)}`}
+								></div>
+							</div>
+						</div>
+						<div>
+							<div class="mb-1 flex justify-between text-sm">
+								<span class="font-bold">Inactive listings</span>
+								<span class="text-[#68746d]"
+									>{number(data.overview.totalListings - data.overview.activeListings)}</span
+								>
+							</div>
+							<div class="h-3 rounded-full bg-[#edf1ed]">
+								<div
+									class="h-3 rounded-full bg-[#6c82a7]"
+									style={`width: ${width(data.overview.totalListings - data.overview.activeListings, data.overview.totalListings)}`}
+								></div>
+							</div>
+						</div>
 					</div>
+					<p class="mt-5 mb-0 text-sm leading-relaxed text-[#68746d]">
+						{number(data.overview.activeListings)} of {number(data.overview.totalListings)} sale
+						listings are currently active.
+					</p>
 				</div>
 			</div>
 		</section>
