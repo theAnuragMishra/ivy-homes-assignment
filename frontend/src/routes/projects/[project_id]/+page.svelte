@@ -81,7 +81,27 @@
 					<h1 class="m-0 text-[clamp(2.5rem,7vw,5.5rem)] leading-[.92] tracking-[-.07em]">
 						{project.apartment_name}
 					</h1>
-					<p class="mt-4 flex gap-2 text-[#68746d]"><span>⌖</span>{project.locality}</p>
+					<p class="mt-4 flex items-center gap-1 text-[#68746d]"><svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="1em"
+											height="1em"
+											viewBox="0 0 24 24"
+											class="inline-block align-middle"
+										>
+											<path d="M0 0h24v24H0z" fill="none" />
+											<g
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+											>
+												<circle cx="12" cy="10" r="3" />
+												<path
+													d="M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8"
+												/>
+											</g>
+										</svg>{project.locality}</p>
 				</div>
 				<div
 					class="grid shrink-0 justify-items-end max-[650px]:mt-6 max-[650px]:justify-items-start"
